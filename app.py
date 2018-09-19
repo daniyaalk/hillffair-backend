@@ -11,7 +11,10 @@ connection = pymysql.connect(host='139.59.91.181',
 
 @app.route('/getwall')
 def getwall():
-    return 'Hello, World!'
+    if(connection):
+        return 'Hello, World!'
+    else:
+        return "ERror"
 
 @app.route('/getlike')
 def getlike():
