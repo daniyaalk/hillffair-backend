@@ -83,3 +83,7 @@ def getprofile():
 @app.route('/postwall')
 def postwall():
     return 'Hello, World!'
+
+
+if __name__ == '__main__':
+    app.run(debug = True)
