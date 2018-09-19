@@ -1,9 +1,18 @@
 from flask import Flask
+import pymysql.cursors
 app = Flask(__name__)
+
+# Connect to the database
+connection = pymysql.connect(host='139.59.91.181',
+                             user='root',
+                             password='appteamback3nd',
+                             db='Hillffair2k18',
+                             cursorclass=pymysql.cursors.DictCursor)
 
 @app.route('/getwall')
 def getwall():
     return 'Hello, World!'
+
 @app.route('/getlike')
 def getlike():
     return 'Hello, World!'
