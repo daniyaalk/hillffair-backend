@@ -2,72 +2,72 @@ from flask import Flask
 app = Flask(__name__)
 
 @app.route('/getwall')
-def hello_world():
+def getwall():
     return 'Hello, World!'
 @app.route('/getlike')
-def hello_world():
+def getlike():
     return 'Hello, World!'
 
 @app.route('/postlike')
-def hello_world():
+def postlike():
     return 'Hello, World!'
 
 @app.route('/getleaderboard')
-def hello_world():
+def getleaderboard():
     return 'Hello, World!'
 
 @app.route('/postpoint')
-def hello_world():
+def postpoint():
     return 'Hello, World!'
 
 @app.route('/getpoint')
-def hello_world():
+def getpoint():
     return 'Hello, World!'
 
 @app.route('/getschedule')
-def hello_world():
+def getschedule():
     return 'Hello, World!'
 
 @app.route('/posteventlike')
-def hello_world():
+def posteventlike():
     return 'Hello, World!'
 
 @app.route('/geteventlike')
-def hello_world():
+def geteventlike():
     return 'Hello, World!'
 
 @app.route('/getclubs')
-def hello_world():
+def getclubs():
     return 'Hello, World!'
 
 @app.route('/getcoreteam')
-def hello_world():
+def getcoreteam():
     return 'Hello, World!'
 
 @app.route('/getsponsor')
-def hello_world():
+def getsponsor():
     return 'Hello, World!'
 
 @app.route('/gettambolanumber')
-def hello_world():
+def gettambolanumber():
     return 'Hello, World!'
 
 @app.route('/posttambolaresult')
-def hello_world():
+def posttambolaresult():
     return 'Hello, World!'
 
 @app.route('/getquiz')
-def hello_world():
+def getquiz():
     return 'Hello, World!'
 
 @app.route('/postprofile')
-def hello_world():
+def postprofile():
     return 'Hello, World!'
 
 @app.route('/getprofile')
-def hello_world():
+def getprofile():
     return 'Hello, World!'
 
 @app.route('/postwall')
-def hello_world():
+def postwall():
     return 'Hello, World!'
