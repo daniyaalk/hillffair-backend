@@ -8,17 +8,22 @@ connection = pymysql.connect(host='139.59.91.181',
                              password='appteamback3nd',
                              db='Hillffair2k18',
                              cursorclass=pymysql.cursors.DictCursor)
+cursor = connection.cursor()
 
 @app.route('/getwall')
 def getwall():
     if(connection):
-        return 'Hello, World!'
+        query = cursor.execute("SELECT  * FROM Wall")
+        result = cursor.fetchone()
+        return str(result), 200, {'Content-Type': 'text/json'}
     else:
         return "ERror"
 
-@app.route('/getlike')
-def getlike():
-    return 'Hello, World!'
+@app.route('/getlike/<int:image_id>')
+def getlike(image_id):
+        query = cursor.execute("SELECT COUNT(*) AS likes FROM likes WHERE post_id="+str(image_id))
+        result = cursor.fetchone()
+        return str(result), 200, {'Content-Type': 'text/json'}
 
 @app.route('/postlike')
 def postlike():
