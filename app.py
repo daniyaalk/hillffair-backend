@@ -8,14 +8,22 @@ connection = pymysql.connect(host='139.59.91.181',
                              password='appteamback3nd',
                              db='Hillffair2k18',
                              cursorclass=pymysql.cursors.DictCursor)
+cursor = connection.cursor()
 
 @app.route('/getwall')
 def getwall():
-    return 'Hello, World!'
+    if(connection):
+        query = cursor.execute("SELECT  * FROM Wall")
+        result = cursor.fetchone()
+        return str(result), 200, {'Content-Type': 'text/json'}
+    else:
+        return "ERror"
 
-@app.route('/getlike')
-def getlike():
-    return 'Hello, World!'
+@app.route('/getlike/<int:image_id>')
+def getlike(image_id):
+        query = cursor.execute("SELECT COUNT(*) AS likes FROM likes WHERE post_id="+str(image_id))
+        result = cursor.fetchone()
+        return str(result), 200, {'Content-Type': 'text/json'}
 
 @app.route('/postlike')
 def postlike():
@@ -80,3 +88,7 @@ def getprofile():
 @app.route('/postwall')
 def postwall():
     return 'Hello, World!'
+
+
+if __name__ == '__main__':
+    app.run(debug = True)
