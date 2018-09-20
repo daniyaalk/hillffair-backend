@@ -17,7 +17,7 @@ def getwall():
         result = cursor.fetchone()
         return str(result), 200, {'Content-Type': 'text/json'}
     else:
-        return "ERror"
+        return "Error"
 
 @app.route('/getlike/<int:image_id>')
 def getlike(image_id):
@@ -25,9 +25,13 @@ def getlike(image_id):
         result = cursor.fetchone()
         return str(result), 200, {'Content-Type': 'text/json'}
 
-@app.route('/postlike')
-def postlike():
-    return 'Hello, World!'
+@app.route('/postlike/<int:image_id>/<int:user_id>')
+def postlike(image_id, user_ud):
+        query = cursor.execute("INSERT INTO likes VALUES('', "+user_id+", "+post_id+")")
+        if query:
+            return "test", 200, {''}
+        else:
+            return "{'status': }"
 
 @app.route('/getleaderboard')
 def getleaderboard():
