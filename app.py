@@ -1,4 +1,6 @@
 from flask import Flask
+from functools import wraps
+import json
 import pymysql.cursors
 app = Flask(__name__)
 
@@ -10,7 +12,27 @@ connection = pymysql.connect(host='139.59.91.181',
                              cursorclass=pymysql.cursors.DictCursor)
 cursor = connection.cursor()
 
-@app.route('/getwall')
+# DECORATOR
+# declares json endpoint given endpoint string
+# return simple python object in the function you write
+# example:
+# @endpoint("/endpoint_string")
+# def function():
+#     result = {...}
+#     return result
+def endpoint(endpoint):
+    def endpoint_decorator(func):
+        @wraps(func)
+        def decorated_func(*args, **kwargs):
+            if (connection):
+                result = func(*args, **kwargs)
+                return json.dumps(result), 200, {'Content-Type': 'text/json'}
+            else:
+                return "{'error':'Error: no connection to database'}", 500, {'Content-Type': 'text/json'}
+        return app.route(endpoint)(decorated_func)
+    return endpoint_decorator
+
+@endpoint('/getwall')
 def getwall():
     if(connection):
         query = cursor.execute("SELECT  * FROM Wall")
@@ -21,9 +43,9 @@ def getwall():
 
 @app.route('/getlike/<int:image_id>')
 def getlike(image_id):
-        query = cursor.execute("SELECT COUNT(*) AS likes FROM likes WHERE post_id="+str(image_id))
-        result = cursor.fetchone()
-        return str(result), 200, {'Content-Type': 'text/json'}
+    query = cursor.execute("SELECT COUNT(*) AS likes FROM likes WHERE post_id="+str(image_id))
+    result = cursor.fetchone()
+    return result
 
 @app.route('/postlike/<int:image_id>/<int:user_id>')
 def postlike(image_id, user_ud):
@@ -33,63 +55,63 @@ def postlike(image_id, user_ud):
         else:
             return "{'status': }"
 
-@app.route('/getleaderboard')
+@endpoint('/getleaderboard')
 def getleaderboard():
     return 'Hello, World!'
 
-@app.route('/postpoint')
+@endpoint('/postpoint')
 def postpoint():
     return 'Hello, World!'
 
-@app.route('/getpoint')
+@endpoint('/getpoint')
 def getpoint():
     return 'Hello, World!'
 
-@app.route('/getschedule')
+@endpoint('/getschedule')
 def getschedule():
     return 'Hello, World!'
 
-@app.route('/posteventlike')
+@endpoint('/posteventlike')
 def posteventlike():
     return 'Hello, World!'
 
-@app.route('/geteventlike')
+@endpoint('/geteventlike')
 def geteventlike():
     return 'Hello, World!'
 
-@app.route('/getclubs')
+@endpoint('/getclubs')
 def getclubs():
     return 'Hello, World!'
 
-@app.route('/getcoreteam')
+@endpoint('/getcoreteam')
 def getcoreteam():
     return 'Hello, World!'
 
-@app.route('/getsponsor')
+@endpoint('/getsponsor')
 def getsponsor():
     return 'Hello, World!'
 
-@app.route('/gettambolanumber')
+@endpoint('/gettambolanumber')
 def gettambolanumber():
     return 'Hello, World!'
 
-@app.route('/posttambolaresult')
+@endpoint('/posttambolaresult')
 def posttambolaresult():
     return 'Hello, World!'
 
-@app.route('/getquiz')
+@endpoint('/getquiz')
 def getquiz():
     return 'Hello, World!'
 
-@app.route('/postprofile')
+@endpoint('/postprofile')
 def postprofile():
     return 'Hello, World!'
 
-@app.route('/getprofile')
+@endpoint('/getprofile')
 def getprofile():
     return 'Hello, World!'
 
-@app.route('/postwall')
+@endpoint('/postwall')
 def postwall():
     return 'Hello, World!'
 
