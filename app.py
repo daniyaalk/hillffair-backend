@@ -1,6 +1,6 @@
 from flask import Flask
 from functools import wraps
-import json
+import json, time
 import pymysql.cursors
 app = Flask(__name__)
 
@@ -8,7 +8,7 @@ app = Flask(__name__)
 connection = pymysql.connect(host='139.59.91.181',
                              user='root',
                              password='appteamback3nd',
-                             db='Hillffair2k18',
+                             db='hillffair',
                              cursorclass=pymysql.cursors.DictCursor)
 cursor = connection.cursor()
 
@@ -26,6 +26,7 @@ def endpoint(endpoint):
         def decorated_func(*args, **kwargs):
             if (connection):
                 result = func(*args, **kwargs)
+                connection.commit()
                 return json.dumps(result), 200, {'Content-Type': 'text/json'}
             else:
                 return "{'error':'Error: no connection to database'}", 500, {'Content-Type': 'text/json'}
@@ -34,26 +35,26 @@ def endpoint(endpoint):
 
 @endpoint('/getwall')
 def getwall():
-    if(connection):
-        query = cursor.execute("SELECT  * FROM Wall")
-        result = cursor.fetchone()
-        return str(result), 200, {'Content-Type': 'text/json'}
-    else:
-        return "Error"
+    query = cursor.execute("SELECT * FROM wall")
+    result = cursor.fetchall()
+    return result
 
-@app.route('/getlike/<int:image_id>')
+@endpoint('/getlike/<int:image_id>')
+# Sample Response: {"likes": 2}
 def getlike(image_id):
     query = cursor.execute("SELECT COUNT(*) AS likes FROM likes WHERE post_id="+str(image_id))
     result = cursor.fetchone()
     return result
 
-@app.route('/postlike/<int:image_id>/<int:user_id>')
-def postlike(image_id, user_ud):
-        query = cursor.execute("INSERT INTO likes VALUES('', "+user_id+", "+post_id+")")
+
+@endpoint('/postlike/<int:image_id>/<user_id>')
+def postlike(image_id, user_id):
+        query = cursor.execute("INSERT INTO likes VALUES(NULL, '"+user_id+"', "+str(image_id)+")")
+        print("INSERT INTO likes VALUES(NULL, '"+user_id+"', "+str(image_id)+")")
         if query:
-            return "test", 200, {''}
+            return {'status': 'success'}
         else:
-            return "{'status': }"
+            return {'status': 'fail'}
 
 @endpoint('/getleaderboard')
 def getleaderboard():
