@@ -42,7 +42,7 @@ def getwall():
 def getlike(image_id):
     query = cursor.execute("SELECT COUNT(*) AS likes FROM likes WHERE post_id="+str(image_id))
     result = cursor.fetchone()
-    return str(result), 200, {'Content-Type': 'text/json'}
+    return result
 
 @endpoint('/postlike')
 def postlike():
