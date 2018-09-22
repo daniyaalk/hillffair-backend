@@ -64,6 +64,7 @@ def getleaderboard():
     result = cursor.fetchall()
     return result
 
+
 @endpoint('/postpoint/<rollno>/<int:points>')
 def postpoint(rollno, points):
     query = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"', "+str(points)+", "+str(time.time()+19800)+")")
