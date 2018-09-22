@@ -5,7 +5,7 @@ import pymysql.cursors
 app = Flask(__name__)
 
 # Connect to the database
-connection = pymysql.connect(host='139.59.91.181',
+connection = pymysql.connect(host='139.59.51.152',
                              user='root',
                              password='appteamback3nd',
                              db='hillffair',
@@ -34,8 +34,9 @@ def endpoint(endpoint):
     return endpoint_decorator
 
 @endpoint('/getwall')
+# Sample Response: [{"id": 1, "name": "Daniyaal Khan", "rollno": "17mi561", "image_id": 1, "likes": 2}]
 def getwall():
-    query = cursor.execute("SELECT * FROM wall")
+    query = cursor.execute("SELECT w.id as id, p.name as name, p.id as rollno, w.id as image_id, (SELECT COUNT(*) FROM likes WHERE post_id=w.id) AS likes FROM wall as w, profile as p WHERE p.id=w.profile_id ORDER BY w.time DESC")
     result = cursor.fetchall()
     return result
 
@@ -50,7 +51,6 @@ def getlike(image_id):
 @endpoint('/postlike/<int:image_id>/<user_id>')
 def postlike(image_id, user_id):
         query = cursor.execute("INSERT INTO likes VALUES(NULL, '"+user_id+"', "+str(image_id)+")")
-        print("INSERT INTO likes VALUES(NULL, '"+user_id+"', "+str(image_id)+")")
         if query:
             return {'status': 'success'}
         else:
@@ -58,10 +58,13 @@ def postlike(image_id, user_id):
 
 @endpoint('/getleaderboard')
 def getleaderboard():
-    return 'Hello, World!'
+    query = cursor.execute("SELECT p.id, p.name, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
+    result = cursor.fetchall()
+    return result
 
-@endpoint('/postpoint')
+@endpoint('/postpoint/<rollno>/<float:points>')
 def postpoint():
+    query = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"', "+points+", "+str(time.time()+19800)+")")
     return 'Hello, World!'
 
 @endpoint('/getpoint')
