@@ -1,6 +1,7 @@
 from flask import Flask
 from functools import wraps
 import json, time
+from datetime import datetime
 import pymysql.cursors
 app = Flask(__name__)
 
@@ -111,7 +112,15 @@ def posttambolaresult():
 
 @endpoint('/getquiz')
 def getquiz():
-    return 'Hello, World!'
+    # returns 10 random questions from category (day)%num_cat
+    NUM_CATEGORIES = 7
+    day_of_year = datetime.now().timetuple().tm_yday
+    curr_cat = (day_of_year % NUM_CATEGORIES)
+    query = cursor.execute("SELECT * FROM quiz WHERE category = %s",curr_cat)
+    result = cursor.fetchall()
+    # choose random 10 from all these 
+    random.shuffle(result)
+    return {'questions':result[:10]}
 
 @endpoint('/postprofile')
 def postprofile():
