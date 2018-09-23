@@ -83,7 +83,10 @@ def getpoint(rollno):
 
 @endpoint('/getschedule')
 def getschedule():
-    return 'Hello, World!'
+    query = cursor.execute("SELECT * FROM events")
+    result = cursor.fetchall()
+    # TODO: Convert the datetime.timedelta format of the time of event in the result JSON array to proper timestamp format
+    return query
 
 @endpoint('/posteventlike')
 def posteventlike():
@@ -110,7 +113,7 @@ random.shuffle(winarray)
 
 @endpoint('/gettambolanumber')
 def gettambolanumber():
-    time = int(datetime(2018, datetime.now().month, datetime.now().day, 16, 0).timestamp())
+    time = int(datetime(2018, datetime.now().month, datetime.now().day, 22, 0).timestamp())
     current = int(datetime.now().timestamp())
     if(0 <= current - time <= 3600):
         i = ((current - time) // 15) % 90
