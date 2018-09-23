@@ -63,7 +63,6 @@ def getleaderboard():
     result = cursor.fetchall()
     return result
 
-<<<<<<< HEAD
 @endpoint('/postpoint/<rollno>/<int:points>')
 def postpoint(rollno, points):
     query = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"', "+str(points)+", "+str(time.time()+19800)+")")
@@ -71,16 +70,10 @@ def postpoint(rollno, points):
         return {'status': 'success'}
     else:
         return {'status': 'fail'}
-=======
-@endpoint('/postpoint/<rollno>/<float:points>')
-def postpoint():
-    query = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"', "+points+", "+str(time.time()+19800)+")")
-    return {'status':'success'}
->>>>>>> stormbringer
 
 @endpoint('/getpoint/<rollno>')
 def getpoint(rollno):
-    query = cursor.execute("SELECT * FROM score WHERE profile_id = %s",(rollno))
+    query = cursor.execute("SELECT SUM(amount) AS points FROM score WHERE profile_id = '"+rollno+"' AND time>=UNIX_timestamp(timestamp(current_date)+19800)")
     result = cursor.fetchone()
     return result
 
