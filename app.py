@@ -111,9 +111,14 @@ def posttambolaresult():
 
 @endpoint('/getquiz')
 def getquiz():
-    query = cursor.execute("SELECT q.ques as ques,q.ans as ans,q.option1 as option1,q.option2 as option2 ,q.option3 as option3,q.option4 as option4 from quiz as q")
-    result = cursor.fetchone()
-    return result
+     NUM_CATEGORIES = 7
+    day_of_year = datetime.now().timetuple().tm_yday
+    curr_cat = (day_of_year % NUM_CATEGORIES)
+    query = cursor.execute("SELECT * FROM quiz WHERE category = %s",curr_cat)
+    result = cursor.fetchall()
+    # choose random 10 from all these 
+    random.shuffle(result)x
+    return {'questions':result[:10]}
 
 @endpoint('/postprofile')
 def postprofile():
