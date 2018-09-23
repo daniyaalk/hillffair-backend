@@ -48,15 +48,13 @@ def getwall():
 def getlike(image_id):
     query = cursor.execute("SELECT COUNT(*) AS likes FROM likes WHERE post_id="+str(image_id))
     result = cursor.fetchone()
-    cursor.close()
     return result
 
 
 @endpoint('/postlike/<int:image_id>/<user_id>')
 def postlike(image_id, user_id):
         query = cursor.execute("INSERT INTO likes VALUES(NULL, '"+user_id+"', "+str(image_id)+")")
-        cursor.close()
-        if query:
+            if query:
             return {'status': 'success'}
         else:
             return {'status': 'fail'}
@@ -66,14 +64,12 @@ def postlike(image_id, user_id):
 def getleaderboard():
     query = cursor.execute("SELECT p.id, p.name, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
     result = cursor.fetchall()
-    cursor.close()
     return result
 
 
 @endpoint('/postpoint/<rollno>/<int:points>')
 def postpoint(rollno, points):
     query = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"', "+str(points)+", "+str(time.time()+19800)+")")
-    cursor.close()
     if query:
         return {'status': 'success'}
     else:
@@ -83,14 +79,12 @@ def postpoint(rollno, points):
 def getpoint(rollno):
     query = cursor.execute("SELECT SUM(amount) AS points FROM score WHERE profile_id = '"+rollno+"' AND time>=UNIX_timestamp(timestamp(current_date)+19800)")
     result = cursor.fetchone()
-    cursor.close()
     return result
 
 @endpoint('/getschedule')
 def getschedule():
     query = cursor.execute("SELECT * FROM events")
     result = cursor.fetchall()
-    cursor.close()
     print(result)
     for x in result:
         x["event_time"] = x["event_time"].timestamp()
