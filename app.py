@@ -48,12 +48,14 @@ def getwall():
 def getlike(image_id):
     query = cursor.execute("SELECT COUNT(*) AS likes FROM likes WHERE post_id="+str(image_id))
     result = cursor.fetchone()
+    cursor.close()
     return result
 
 
 @endpoint('/postlike/<int:image_id>/<user_id>')
 def postlike(image_id, user_id):
         query = cursor.execute("INSERT INTO likes VALUES(NULL, '"+user_id+"', "+str(image_id)+")")
+        cursor.close()
         if query:
             return {'status': 'success'}
         else:
@@ -64,12 +66,14 @@ def postlike(image_id, user_id):
 def getleaderboard():
     query = cursor.execute("SELECT p.id, p.name, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
     result = cursor.fetchall()
+    cursor.close()
     return result
 
 
 @endpoint('/postpoint/<rollno>/<int:points>')
 def postpoint(rollno, points):
     query = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"', "+str(points)+", "+str(time.time()+19800)+")")
+    cursor.close()
     if query:
         return {'status': 'success'}
     else:
@@ -79,14 +83,18 @@ def postpoint(rollno, points):
 def getpoint(rollno):
     query = cursor.execute("SELECT SUM(amount) AS points FROM score WHERE profile_id = '"+rollno+"' AND time>=UNIX_timestamp(timestamp(current_date)+19800)")
     result = cursor.fetchone()
+    cursor.close()
     return result
 
 @endpoint('/getschedule')
 def getschedule():
     query = cursor.execute("SELECT * FROM events")
     result = cursor.fetchall()
-    # TODO: Convert the datetime.timedelta format of the time of event in the result JSON array to proper timestamp format
-    return query
+    cursor.close()
+    print(result)
+    for x in result:
+        x["event_time"] = x["event_time"].timestamp()
+    return result
 
 @endpoint('/posteventlike')
 def posteventlike():
@@ -113,7 +121,7 @@ random.shuffle(winarray)
 
 @endpoint('/gettambolanumber')
 def gettambolanumber():
-    time = int(datetime(2018, datetime.now().month, datetime.now().day, 22, 0).timestamp())
+    time = int(datetime(2018, datetime.now().month, datetime.now().day, 23, 0).timestamp())
     current = int(datetime.now().timestamp())
     if(0 <= current - time <= 3600):
         i = ((current - time) // 15) % 90
@@ -149,7 +157,7 @@ def getprofile():
 def postwall():
     return 'Hello, World!'
 
-@endpoint('/deletewallpost/<user_id>/<int : image_id>')
+@endpoint('/deletewallpost/<user_id>/<int:image_id>')
 def deletewallpost(user_id,image_id):
     query = cursor.execute("DELETE from wall where wall.id='"+image_id+"'")
     if query:
