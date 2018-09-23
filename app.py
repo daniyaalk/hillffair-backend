@@ -54,7 +54,7 @@ def getlike(image_id):
 @endpoint('/postlike/<int:image_id>/<user_id>')
 def postlike(image_id, user_id):
         query = cursor.execute("INSERT INTO likes VALUES(NULL, '"+user_id+"', "+str(image_id)+")")
-            if query:
+        if query:
             return {'status': 'success'}
         else:
             return {'status': 'fail'}
@@ -115,7 +115,7 @@ random.shuffle(winarray)
 
 @endpoint('/gettambolanumber')
 def gettambolanumber():
-    time = int(datetime(2018, datetime.now().month, datetime.now().day, 23, 0).timestamp())
+    time = int(datetime(2018, datetime.now().month, datetime.now().day, 22, 0).timestamp())
     current = int(datetime.now().timestamp())
     if(0 <= current - time <= 3600):
         i = ((current - time) // 15) % 90
