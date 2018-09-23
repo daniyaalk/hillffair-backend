@@ -2,6 +2,7 @@ from flask import Flask
 from functools import wraps
 import json, time
 from datetime import datetime
+import random
 import pymysql.cursors
 app = Flask(__name__)
 
@@ -21,6 +22,7 @@ cursor = connection.cursor()
 # def function():
 #     result = {...}
 #     return result
+
 def endpoint(endpoint):
     def endpoint_decorator(func):
         @wraps(func)
@@ -103,9 +105,18 @@ def getcoreteam():
 def getsponsor():
     return 'Hello, World!'
 
+winarray = list(range(1,91))
+random.shuffle(winarray)
+
 @endpoint('/gettambolanumber')
 def gettambolanumber():
-    return 'Hello, World!'
+    time = int(datetime(2018, datetime.now().month, datetime.now().day, 16, 0).timestamp())
+    current = int(datetime.now().timestamp())
+    if(0 <= current - time <= 3600):
+        i = ((current - time) // 15) % 90
+        return {'number' : winarray[i]}
+    else:
+        return {'status': 'Unavailable'}
 
 @endpoint('/posttambolaresult')
 def posttambolaresult():
@@ -119,7 +130,7 @@ def getquiz():
     curr_cat = (day_of_year % NUM_CATEGORIES)
     query = cursor.execute("SELECT * FROM quiz WHERE category = %s",curr_cat)
     result = cursor.fetchall()
-    # choose random 10 from all these 
+    # choose random 10 from all these
     random.shuffle(result)
     return {'questions':result[:10]}
 
