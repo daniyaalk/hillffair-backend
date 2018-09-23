@@ -16,7 +16,7 @@ cursor = connection.cursor()
 
 # DECORATOR
 # declares json endpoint given endpoint string
-# return simple python object in the function you write
+# return simple python option1bject in the function you write
 # example:
 # @endpoint("/endpoint_string")
 # def function():
@@ -145,6 +145,14 @@ def getprofile():
 @endpoint('/postwall')
 def postwall():
     return 'Hello, World!'
+
+@endpoint('/deletewallpost/<user_id>/<int : image_id>')
+def deletewallpost(user_id,image_id):
+    query = cursor.execute("DELETE from wall where wall.id='"+image_id+"'")
+    if query:
+        return {'status': 'success'}
+    else:
+        return {'status': 'fail'}
 
 
 if __name__ == '__main__':
