@@ -1,6 +1,8 @@
 from flask import Flask
 from functools import wraps
 import json, time
+from datetime import datetime
+import random
 import pymysql.cursors
 app = Flask(__name__)
 
@@ -14,12 +16,13 @@ cursor = connection.cursor()
 
 # DECORATOR
 # declares json endpoint given endpoint string
-# return simple python object in the function you write
+# return simple python option1bject in the function you write
 # example:
 # @endpoint("/endpoint_string")
 # def function():
 #     result = {...}
 #     return result
+
 def endpoint(endpoint):
     def endpoint_decorator(func):
         @wraps(func)
@@ -63,6 +66,7 @@ def getleaderboard():
     result = cursor.fetchall()
     return result
 
+
 @endpoint('/postpoint/<rollno>/<int:points>')
 def postpoint(rollno, points):
     query = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"', "+str(points)+", "+str(time.time()+19800)+")")
@@ -101,9 +105,18 @@ def getcoreteam():
 def getsponsor():
     return 'Hello, World!'
 
+winarray = list(range(1,91))
+random.shuffle(winarray)
+
 @endpoint('/gettambolanumber')
 def gettambolanumber():
-    return 'Hello, World!'
+    time = int(datetime(2018, datetime.now().month, datetime.now().day, 16, 0).timestamp())
+    current = int(datetime.now().timestamp())
+    if(0 <= current - time <= 3600):
+        i = ((current - time) // 15) % 90
+        return {'number' : winarray[i]}
+    else:
+        return {'status': 'Unavailable'}
 
 @endpoint('/posttambolaresult')
 def posttambolaresult():
@@ -111,14 +124,18 @@ def posttambolaresult():
 
 @endpoint('/getquiz')
 def getquiz():
-     NUM_CATEGORIES = 7
+    # returns 10 random questions from category (day)%num_cat
+    NUM_CATEGORIES = 7
     day_of_year = datetime.now().timetuple().tm_yday
     curr_cat = (day_of_year % NUM_CATEGORIES)
     query = cursor.execute("SELECT * FROM quiz WHERE category = %s",curr_cat)
     result = cursor.fetchall()
-    # choose random 10 from all these 
-    random.shuffle(result)x
+    # choose random 10 from all these
+    random.shuffle(result)
     return {'questions':result[:10]}
+    query = cursor.execute("SELECT q.ques as ques,q.ans as ans,q.option1 as option1,q.option2 as option2 ,q.option3 as option3,q.option4 as option4 from quiz as q")
+    result = cursor.fetchone()
+    return result
 
 @endpoint('/postprofile')
 def postprofile():
@@ -132,6 +149,14 @@ def getprofile():
 def postwall():
     return 'Hello, World!'
 
+@endpoint('/deletewallpost/<user_id>/<int : image_id>')
+def deletewallpost(user_id,image_id):
+    query = cursor.execute("DELETE from wall where wall.id='"+image_id+"'")
+    if query:
+        return {'status': 'success'}
+    else:
+        return {'status': 'fail'}
+
 
 if __name__ == '__main__':
-    app.run(debug = True)
+    app.run(debug = True, host='0.0.0.0')
