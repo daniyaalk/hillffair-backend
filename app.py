@@ -111,7 +111,9 @@ def posttambolaresult():
 
 @endpoint('/getquiz')
 def getquiz():
-    return 'Hello, World!'
+    query = cursor.execute("SELECT q.ques as ques,q.ans as ans,q.option1 as option1,q.option2 as option2 ,q.option3 as option3,q.option4 as option4 from quiz as q")
+    result = cursor.fetchone()
+    return result
 
 @endpoint('/postprofile')
 def postprofile():
