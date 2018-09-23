@@ -57,19 +57,23 @@ def postlike(image_id, user_id):
             return {'status': 'fail'}
 
 @endpoint('/getleaderboard')
+# Sample Response: [{"id": "17mi561", "name": "Daniyaal Khan", "score": 60.0}, {"id": "17mi560", "name": "Check", "score": 10.0}]
 def getleaderboard():
     query = cursor.execute("SELECT p.id, p.name, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
     result = cursor.fetchall()
     return result
 
-@endpoint('/postpoint/<rollno>/<float:points>')
-def postpoint():
-    query = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"', "+points+", "+str(time.time()+19800)+")")
-    return {'status':'success'}
+@endpoint('/postpoint/<rollno>/<int:points>')
+def postpoint(rollno, points):
+    query = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"', "+str(points)+", "+str(time.time()+19800)+")")
+    if query:
+        return {'status': 'success'}
+    else:
+        return {'status': 'fail'}
 
 @endpoint('/getpoint/<rollno>')
 def getpoint(rollno):
-    query = cursor.execute("SELECT * FROM score WHERE profile_id = %s",(rollno))
+    query = cursor.execute("SELECT SUM(amount) AS points FROM score WHERE profile_id = '"+rollno+"' AND time>=UNIX_timestamp(timestamp(current_date)+19800)")
     result = cursor.fetchone()
     return result
 
