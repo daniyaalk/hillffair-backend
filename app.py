@@ -168,12 +168,15 @@ def postprofile():
 @endpoint('/getprofile/<user_id>')
 def getprofile(user_id):
     # TODO: Assigned to Utkarsh Jaiprakash Singh
-    # query = cursor.execute("SELECT * FROM profile WHERE id=%s", (user_id))
-    # result = cursor.fetchall()
-    # query1 = cursor.execute("SELECT profile_id, SUM(amount) FROM score GROUP BY profile_id ORDER BY SUM(AMOUNT) DESC WHERE profile_id = %s", (user_id))
-    # result1 = cursor.fetchall()
-    # print(result1)
-    # return result
+    query = cursor.execute("SELECT * FROM profile WHERE id=%s", (user_id))
+    result = cursor.fetchall()
+    cursor.execute("SET @row_number=0;")
+    query1 = cursor.execute("select profile_id, SUM(amount) as score,(@row_number:=@row_number+1) as rank from score group by profile_id having profile_id=%s  order by sum(amount) desc", (user_id))
+    result1 = cursor.fetchall()
+    if query1 !=0:
+        result[0]['rank'] = result1[0]['rank']
+        result[0]['score'] = result1[0]['score']
+    return result
 
 @endpoint('/postwall')
 def postwall():
