@@ -6,14 +6,7 @@ import random
 import pymysql.cursors
 app = Flask(__name__)
 
-# Connect to the database
-connection = pymysql.connect(host='139.59.51.152',
-                             user='root',
-                             password='appteamback3nd',
-                             db='hillffair',
-                             cursorclass=pymysql.cursors.DictCursor)
-cursor = connection.cursor()
-
+global cursor
 # DECORATOR
 # declares json endpoint given endpoint string
 # return simple python option1bject in the function you write
@@ -27,9 +20,18 @@ def endpoint(endpoint):
     def endpoint_decorator(func):
         @wraps(func)
         def decorated_func(*args, **kwargs):
+            # Connect to the database
+            global cursor
+            connection = pymysql.connect(host='139.59.51.152',
+                                         user='root',
+                                         password='appteamback3nd',
+                                         db='hillffair',
+                                         cursorclass=pymysql.cursors.DictCursor)
+            cursor = connection.cursor()
             if (connection):
                 result = func(*args, **kwargs)
                 connection.commit()
+                cursor.close()
                 return json.dumps(result), 200, {'Content-Type': 'text/json'}
             else:
                 return "{'error':'Error: no connection to database'}", 500, {'Content-Type': 'text/json'}
@@ -83,34 +85,58 @@ def getpoint(rollno):
 
 @endpoint('/getschedule')
 def getschedule():
-    return 'Hello, World!'
+    query = cursor.execute("SELECT * FROM events")
+    result = cursor.fetchall()
+    print(query)
+    for x in result:
+        x["event_time"] = x["event_time"].timestamp()
+    return result
 
-@endpoint('/posteventlike')
-def posteventlike():
-    return 'Hello, World!'
+@endpoint('/posteventlike/<user_id>/<event_id>')
+def posteventlike(user_id, event_id):
+    userCheck = cursor.execute("SELECT * from profile where id = %s", (user_id))
+    if userCheck == 0:
+        return {'status': 'No such user'}
+    eventCheck = cursor.execute("SELECT * from events where event_id = %s", (event_id))
+    if eventCheck == 0:
+        return {'status': 'No such event'}
+    query = cursor.execute("SELECT * from event_likes where user_id = %s AND event_id = %s", (user_id, event_id))
+    if query == 0:
+        cursor.execute("INSERT INTO event_likes VALUES (NULL, %s, %s)", (event_id, user_id))
+        return {'status': 'success'}
+    else:
+        return {'status': 'Already Liked'}
 
-@endpoint('/geteventlike')
-def geteventlike():
-    return 'Hello, World!'
+@endpoint('/geteventlike/<event_id>')
+def geteventlike(event_id):
+    query = cursor.execute("SELECT COUNT(*) from event_likes where event_id = %s", event_id)
+    result = cursor.fetchone()
+    return {'likes': result["COUNT(*)"]}
 
 @endpoint('/getclubs')
 def getclubs():
-    return 'Hello, World!'
+    query = cursor.execute("SELECT * FROM clubs")
+    result = cursor.fetchall()
+    return result
 
 @endpoint('/getcoreteam')
 def getcoreteam():
-    return 'Hello, World!'
+    query = cursor.execute("SELECT * FROM coreteam")
+    result = cursor.fetchall()
+    return result
 
 @endpoint('/getsponsor')
 def getsponsor():
-    return 'Hello, World!'
+    query = cursor.execute("SELECT * FROM sponsors")
+    result = cursor.fetchall()
+    return result
 
 winarray = list(range(1,91))
 random.shuffle(winarray)
 
 @endpoint('/gettambolanumber')
 def gettambolanumber():
-    time = int(datetime(2018, datetime.now().month, datetime.now().day, 16, 0).timestamp())
+    time = int(datetime(2018, datetime.now().month, datetime.now().day, 22, 0).timestamp())
     current = int(datetime.now().timestamp())
     if(0 <= current - time <= 3600):
         i = ((current - time) // 15) % 90
@@ -136,17 +162,24 @@ def getquiz():
 
 @endpoint('/postprofile')
 def postprofile():
-    return 'Hello, World!'
+    # TODO: Daniyaal or Kartik Sir
+    return 'Hello bitch'
 
-@endpoint('/getprofile')
-def getprofile():
-    return 'Hello, World!'
+@endpoint('/getprofile/<user_id>')
+def getprofile(user_id):
+    # TODO: Assigned to Utkarsh Jaiprakash Singh
+    # query = cursor.execute("SELECT * FROM profile WHERE id=%s", (user_id))
+    # result = cursor.fetchall()
+    # query1 = cursor.execute("SELECT profile_id, SUM(amount) FROM score GROUP BY profile_id ORDER BY SUM(AMOUNT) DESC WHERE profile_id = %s", (user_id))
+    # result1 = cursor.fetchall()
+    # print(result1)
+    # return result
 
 @endpoint('/postwall')
 def postwall():
     return 'Hello, World!'
 
-@endpoint('/deletewallpost/<user_id>/<int : image_id>')
+@endpoint('/deletewallpost/<user_id>/<int:image_id>')
 def deletewallpost(user_id,image_id):
     query = cursor.execute("DELETE from wall where wall.id='"+image_id+"'")
     if query:
