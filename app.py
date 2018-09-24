@@ -134,19 +134,28 @@ def getquiz():
     random.shuffle(result)
     return {'questions':result[:10]}
 
-@endpoint('/postprofile')
-def postprofile():
+@endpoint('/postprofile/<name>/<rollno>/<int:phone_no>')
+def postprofile(name,rollno,phone_no):
+    query = cursor.execute("INSERT into profile value ('"+rollno+"',"+phone_no+",'"+name+"')")
+    if query:
+        return {'status': 'success'}
+    else:
+        return {'status': 'fail'}
+
+
+@endpoint('/getprofile/<rollno>')
+def getprofile(rollno):
     return 'Hello, World!'
 
-@endpoint('/getprofile')
-def getprofile():
-    return 'Hello, World!'
+@endpoint('/postwall/<rollno>/')
+def postwall(rollno):
+    query = cursor.execute("INSERT into wall as w (w.profile_id,w.share_url,w.time) values ('"+rollno+"','',TIME(SYSDATE())")
+    if query:
+        return {'status': 'success'}
+    else:
+        return {'status': 'fail'}
 
-@endpoint('/postwall')
-def postwall():
-    return 'Hello, World!'
-
-@endpoint('/deletewallpost/<user_id>/<int : image_id>')
+@endpoint('/deletewallpost/<user_id>/<int:image_id>')
 def deletewallpost(user_id,image_id):
     query = cursor.execute("DELETE from wall where wall.id='"+image_id+"'")
     if query:
