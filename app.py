@@ -41,9 +41,9 @@ def endpoint(endpoint):
     return endpoint_decorator
 
 @endpoint('/getwall')
-# Sample Response: [{"id": 1, "name": "Daniyaal Khan", "rollno": "17mi561", "image_id": 1, "likes": 2}]
+# Sample Response: [{"id": 1, "name": "Daniyaal Khan", "rollno": "17mi561", "likes": 2}]
 def getwall():
-    query = cursor.execute("SELECT w.id as id, p.name as name, p.id as rollno, w.id as image_id, (SELECT COUNT(*) FROM likes WHERE post_id=w.id) AS likes FROM wall as w, profile as p WHERE p.id=w.profile_id ORDER BY w.time DESC")
+    query = cursor.execute("SELECT w.id as id, p.name as name, p.id as rollno, (SELECT COUNT(*) FROM likes WHERE post_id=w.id) AS likes FROM wall as w, profile as p WHERE p.id=w.profile_id ORDER BY w.time DESC")
     result = cursor.fetchall()
     return result
 
