@@ -64,7 +64,7 @@ def postlike(image_id, user_id):
 @endpoint('/getleaderboard')
 # Sample Response: [{"id": "17mi561", "name": "Daniyaal Khan", "score": 60.0}, {"id": "17mi560", "name": "Check", "score": 10.0}]
 def getleaderboard():
-    query = cursor.execute("SELECT p.id, p.name, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
+    query = cursor.execute("SELECT p.id, p.name, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=(UNIX_timestamp(timestamp(current_date)))+19800) AS score FROM profile AS p ORDER BY score DESC")
     result = cursor.fetchall()
     return result
 
@@ -79,7 +79,7 @@ def postpoint(rollno, points):
 
 @endpoint('/getpoint/<rollno>')
 def getpoint(rollno):
-    query = cursor.execute("SELECT SUM(amount) AS points FROM score WHERE profile_id = '"+rollno+"' AND time>=UNIX_timestamp(timestamp(current_date)+19800)")
+    query = cursor.execute("SELECT SUM(amount) AS points FROM score WHERE profile_id = '"+rollno+"' AND time>=(UNIX_timestamp(timestamp(current_date))+19800)")
     result = cursor.fetchone()
     return result
 
