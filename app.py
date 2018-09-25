@@ -6,7 +6,9 @@ import random
 import pymysql.cursors
 app = Flask(__name__)
 
+
 global cursor
+
 # DECORATOR
 # declares json endpoint given endpoint string
 # return simple python option1bject in the function you write
@@ -14,7 +16,6 @@ global cursor
 # @endpoint("/endpoint_string")
 # def function():
 #     result = {...}
-#     return result
 
 def endpoint(endpoint):
     def endpoint_decorator(func):
@@ -22,16 +23,17 @@ def endpoint(endpoint):
         def decorated_func(*args, **kwargs):
             # Connect to the database
             global cursor
-            connection = pymysql.connect(host='139.59.51.152',
-                                         user='root',
-                                         password='appteamback3nd',
+            connection = pymysql.connect(host='52.41.147.246',
+                                         user='quizuser',
+                                         password='quizadder',
                                          db='hillffair',
                                          cursorclass=pymysql.cursors.DictCursor)
             cursor = connection.cursor()
+
             if (connection):
                 result = func(*args, **kwargs)
                 connection.commit()
-                cursor.close()
+                connection.close()
                 return json.dumps(result), 200, {'Content-Type': 'text/json'}
             else:
                 return "{'error':'Error: no connection to database'}", 500, {'Content-Type': 'text/json'}
@@ -39,7 +41,7 @@ def endpoint(endpoint):
     return endpoint_decorator
 
 @endpoint('/getwall')
-# Sample Response: [{"id": 1, "name": "Daniyaal Khan", "rollno": "17mi561", "image_id": 1, "likes": 2}]
+# Sample Response: [{"id": 1, "name": "Daniyaal Khan", "rollno": "17mi561", "likes": 2}]
 def getwall():
     query = cursor.execute("SELECT w.id as main_pic, p.name as name, p.id as rollno, w.id as image_id, p.image_url as profile_pic, (SELECT COUNT(*) FROM likes WHERE post_id=w.id) AS likes FROM wall as w, profile as p WHERE p.id=w.profile_id ORDER BY w.time DESC")
     result = cursor.fetchall()
@@ -79,7 +81,7 @@ def postpoint(rollno, points):
 
 @endpoint('/getpoint/<rollno>')
 def getpoint(rollno):
-    query = cursor.execute("SELECT SUM(amount) AS points FROM score WHERE profile_id = '"+rollno+"' AND time>=UNIX_timestamp(timestamp(current_date)+19800)")
+    query = cursor.execute("SELECT SUM(amount) AS points FROM score WHERE profile_id = '"+rollno+"' AND time>=(UNIX_timestamp(timestamp(current_date))+19800)")
     result = cursor.fetchone()
     return result
 
@@ -87,9 +89,8 @@ def getpoint(rollno):
 def getschedule():
     query = cursor.execute("SELECT * FROM events")
     result = cursor.fetchall()
-    print(query)
-    for x in result:
-        x["event_time"] = x["event_time"].timestamp()
+    #for x in result:
+        #x["event_time"] = x["event_time"].timestamp()
     return result
 
 @endpoint('/posteventlike/<user_id>/<event_id>')
@@ -168,8 +169,8 @@ def postprofile(name,rollno,phone_no):
     else:
         return {'status': 'fail'}
 
-@endpoint('/getprofile/<user_id>')
-def getprofile(user_id):
+#@endpoint('/getprofile/<user_id>')
+#def getprofile(user_id):
     # TODO: Assigned to Utkarsh Jaiprakash Singh
     # query = cursor.execute("SELECT * FROM profile WHERE id=%s", (user_id))
     # result = cursor.fetchall()
