@@ -41,7 +41,7 @@ def endpoint(endpoint):
 @endpoint('/getwall')
 # Sample Response: [{"id": 1, "name": "Daniyaal Khan", "rollno": "17mi561", "image_id": 1, "likes": 2}]
 def getwall():
-    query = cursor.execute("SELECT w.id as id, p.name as name, p.id as rollno, w.id as image_id, (SELECT COUNT(*) FROM likes WHERE post_id=w.id) AS likes FROM wall as w, profile as p WHERE p.id=w.profile_id ORDER BY w.time DESC")
+    query = cursor.execute("SELECT w.id as main_pic, p.name as name, p.id as rollno, w.id as image_id, p.image_url as profile_pic, (SELECT COUNT(*) FROM likes WHERE post_id=w.id) AS likes FROM wall as w, profile as p WHERE p.id=w.profile_id ORDER BY w.time DESC")
     result = cursor.fetchall()
     return result
 
@@ -64,7 +64,7 @@ def postlike(image_id, user_id):
 @endpoint('/getleaderboard')
 # Sample Response: [{"id": "17mi561", "name": "Daniyaal Khan", "score": 60.0}, {"id": "17mi560", "name": "Check", "score": 10.0}]
 def getleaderboard():
-    query = cursor.execute("SELECT p.id, p.name, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
+    query = cursor.execute("SELECT p.id, p.name, p.image_url, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
     result = cursor.fetchall()
     return result
 
