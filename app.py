@@ -43,7 +43,7 @@ def endpoint(endpoint):
 @endpoint('/getwall')
 # Sample Response: [{"id": 1, "name": "Daniyaal Khan", "rollno": "17mi561", "likes": 2}]
 def getwall():
-    query = cursor.execute("SELECT w.id as main_pic, p.name as name, p.id as rollno, w.id as image_id, p.image_url as profile_pic, (SELECT COUNT(*) FROM likes WHERE post_id=w.id) AS likes FROM wall as w, profile as p WHERE p.id=w.profile_id ORDER BY w.time DESC")
+    query = cursor.execute("SELECT w.id as main_pic, p.name as name, p.id as rollno, w.image_url as image_id, p.image_url as profile_pic, (SELECT COUNT(*) FROM likes WHERE post_id=w.id) AS likes FROM wall as w, profile as p WHERE p.id=w.profile_id ORDER BY w.time DESC")
     result = cursor.fetchall()
     return result
 
@@ -87,7 +87,7 @@ def getpoint(rollno):
 
 @endpoint('/getschedule')
 def getschedule():
-    query = cursor.execute("SELECT * FROM events")
+    query = cursor.execute("SELECT name as club_name, event_id,event_name,event_time,club_logo FROM events,clubs WHERE events.club_id=clubs.id")
     result = cursor.fetchall()
     #for x in result:
         #x["event_time"] = x["event_time"].timestamp()
@@ -163,25 +163,23 @@ def getquiz():
 
 @endpoint('/postprofile/<name>/<rollno>/<int:phone_no>')
 def postprofile(name,rollno,phone_no):
-    query = cursor.execute("INSERT into profile value ('"+rollno+"',"+phone_no+",'"+name+"')")
+    query = cursor.execute("INSERT into profile value ('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL)")
     if query:
         return {'status': 'success'}
     else:
         return {'status': 'fail'}
 
-#@endpoint('/getprofile/<user_id>')
-#def getprofile(user_id):
-    # TODO: Assigned to Utkarsh Jaiprakash Singh
-    # query = cursor.execute("SELECT * FROM profile WHERE id=%s", (user_id))
-    # result = cursor.fetchall()
-    # query1 = cursor.execute("SELECT profile_id, SUM(amount) FROM score GROUP BY profile_id ORDER BY SUM(AMOUNT) DESC WHERE profile_id = %s", (user_id))
-    # result1 = cursor.fetchall()
+@endpoint('/getprofile/<user_id>')
+def getprofile(user_id):
+    print("SELECT profile.name as name, profile.id as rollno, profile.image_url as profile_pic, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) as score FROM profile WHERE profile.id ='"+user_id+"'")
+    query = cursor.execute("SELECT profile.name as name, profile.id as rollno, profile.image_url as profile_pic, (SELECT SUM(amount) FROM score WHERE score.profile_id=rollno AND time>=UNIX_timestamp(timestamp(current_date)+19800)) as score FROM profile WHERE profile.id ='"+user_id+"'")
+    result = cursor.fetchall()
     # print(result1)
-    # return result
+    return result
 
-@endpoint('/deletewallpost/<user_id>/<int:image_id>')
-def deletewallpost(user_id,image_id):
-    query = cursor.execute("DELETE from wall where wall.id='"+image_id+"'")
+@endpoint('/deletewallpost/<int:image_id>')
+def deletewallpost(image_id):
+    query = cursor.execute("DELETE from wall where wall.id='"+str(image_id)+"'")
     if query:
         return {'status': 'success'}
     else:
