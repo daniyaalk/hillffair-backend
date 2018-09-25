@@ -89,9 +89,8 @@ def getpoint(rollno):
 def getschedule():
     query = cursor.execute("SELECT * FROM events")
     result = cursor.fetchall()
-    print(query)
-    for x in result:
-        x["event_time"] = x["event_time"].timestamp()
+    #for x in result:
+        #x["event_time"] = x["event_time"].timestamp()
     return result
 
 @endpoint('/posteventlike/<user_id>/<event_id>')
