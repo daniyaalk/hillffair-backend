@@ -4,14 +4,6 @@ import json, time
 import pymysql.cursors
 app = Flask(__name__)
 
-# Connect to the database
-connection = pymysql.connect(host='139.59.51.152',
-                             user='root',
-                             password='appteamback3nd',
-                             db='hillffair',
-                             cursorclass=pymysql.cursors.DictCursor)
-cursor = connection.cursor()
-
 # DECORATOR
 # declares json endpoint given endpoint string
 # return simple python object in the function you write
@@ -19,14 +11,26 @@ cursor = connection.cursor()
 # @endpoint("/endpoint_string")
 # def function():
 #     result = {...}
-#     return result
+#     return result\
+global cursor
+
 def endpoint(endpoint):
     def endpoint_decorator(func):
         @wraps(func)
         def decorated_func(*args, **kwargs):
+            # Connect to the database
+            global cursor
+            connection = pymysql.connect(host='139.59.51.152',
+                                         user='root',
+                                         password='appteamback3nd',
+                                         db='hillffair',
+                                         cursorclass=pymysql.cursors.DictCursor)
+            cursor = connection.cursor()
+
             if (connection):
                 result = func(*args, **kwargs)
                 connection.commit()
+                connection.close()
                 return json.dumps(result), 200, {'Content-Type': 'text/json'}
             else:
                 return "{'error':'Error: no connection to database'}", 500, {'Content-Type': 'text/json'}
@@ -91,15 +95,21 @@ def geteventlike():
 
 @endpoint('/getclubs')
 def getclubs():
-    return 'Hello, World!'
+    query = cursor.execute("SELECT * FROM clubs")
+    result = cursor.fetchall()
+    return result
 
 @endpoint('/getcoreteam')
 def getcoreteam():
-    return 'Hello, World!'
+    query = cursor.execute("SELECT * FROM coreteam")
+    result = cursor.fetchall()
+    return result
 
 @endpoint('/getsponsor')
 def getsponsor():
-    return 'Hello, World!'
+    query = cursor.execute("SELECT * FROM sponsors")
+    result = cursor.fetchall()
+    return result
 
 @endpoint('/gettambolanumber')
 def gettambolanumber():
@@ -113,9 +123,13 @@ def posttambolaresult():
 def getquiz():
     return 'Hello, World!'
 
-@endpoint('/postprofile')
-def postprofile():
-    return 'Hello, World!'
+@endpoint('/postprofile/<rollno>/<name>/<phone>')
+def postprofile(rollno, name, phone):
+    query = cursor.execute("INSERT INTO profile VALUES('"+rollno+"', '"+phone+"', '"+name+"')")
+    if query:
+        return {'status': 'success'}
+    else:
+        return {'status': 'fail'}
 
 @endpoint('/getprofile')
 def getprofile():
