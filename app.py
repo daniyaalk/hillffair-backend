@@ -30,7 +30,7 @@ def endpoint(endpoint):
         def decorated_func(*args, **kwargs):
             # Connect to the database
             global cursor
-            connection = pymysql.connect(host='139.59.51.152',
+            connection = pymysql.connect(host='52.41.14.246',
                                          user='root',
                                          password='appteamback3nd',
                                          db='hillffair',
@@ -146,12 +146,9 @@ def getsponsor():
     query = cursor.execute("SELECT * FROM sponsors")
     result = cursor.fetchall()
     return result
-<<<<<<< HEAD
-=======
 
 winarray = list(range(1,91))
 random.shuffle(winarray)
->>>>>>> master
 
 @endpoint('/gettambolanumber')
 def gettambolanumber():
@@ -169,17 +166,6 @@ def posttambolaresult():
 
 @endpoint('/getquiz')
 def getquiz():
-<<<<<<< HEAD
-    return 'Hello, World!'
-
-@endpoint('/postprofile/<rollno>/<name>/<phone>')
-def postprofile(rollno, name, phone):
-    query = cursor.execute("INSERT INTO profile VALUES('"+rollno+"', '"+phone+"', '"+name+"')")
-    if query:
-        return {'status': 'success'}
-    else:
-        return {'status': 'fail'}
-=======
     # returns 10 random questions from category (day)%num_cat
     NUM_CATEGORIES = 7
     day_of_year = datetime.now().timetuple().tm_yday
@@ -189,7 +175,6 @@ def postprofile(rollno, name, phone):
     # choose random 10 from all these
     random.shuffle(result)
     return {'questions':result[:10]}
->>>>>>> master
 
 @endpoint('/postprofile/<name>/<rollno>/<int:phone_no>')
 def postprofile(name,rollno,phone_no):
