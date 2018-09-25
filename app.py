@@ -6,7 +6,9 @@ import random
 import pymysql.cursors
 app = Flask(__name__)
 
+
 global cursor
+
 # DECORATOR
 # declares json endpoint given endpoint string
 # return simple python option1bject in the function you write
@@ -14,7 +16,6 @@ global cursor
 # @endpoint("/endpoint_string")
 # def function():
 #     result = {...}
-#     return result
 
 def endpoint(endpoint):
     def endpoint_decorator(func):
@@ -22,16 +23,17 @@ def endpoint(endpoint):
         def decorated_func(*args, **kwargs):
             # Connect to the database
             global cursor
-            connection = pymysql.connect(host='139.59.51.152',
-                                         user='root',
-                                         password='appteamback3nd',
+            connection = pymysql.connect(host='52.41.147.246',
+                                         user='quizuser',
+                                         password='quizadder',
                                          db='hillffair',
                                          cursorclass=pymysql.cursors.DictCursor)
             cursor = connection.cursor()
+
             if (connection):
                 result = func(*args, **kwargs)
                 connection.commit()
-                cursor.close()
+                connection.close()
                 return json.dumps(result), 200, {'Content-Type': 'text/json'}
             else:
                 return "{'error':'Error: no connection to database'}", 500, {'Content-Type': 'text/json'}
@@ -168,8 +170,8 @@ def postprofile(name,rollno,phone_no):
     else:
         return {'status': 'fail'}
 
-@endpoint('/getprofile/<user_id>')
-def getprofile(user_id):
+#@endpoint('/getprofile/<user_id>')
+#def getprofile(user_id):
     # TODO: Assigned to Utkarsh Jaiprakash Singh
     # query = cursor.execute("SELECT * FROM profile WHERE id=%s", (user_id))
     # result = cursor.fetchall()
