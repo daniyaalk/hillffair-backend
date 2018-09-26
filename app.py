@@ -6,7 +6,9 @@ import random
 import pymysql.cursors
 app = Flask(__name__)
 
+
 global cursor
+
 # DECORATOR
 # declares json endpoint given endpoint string
 # return simple python option1bject in the function you write
@@ -14,7 +16,6 @@ global cursor
 # @endpoint("/endpoint_string")
 # def function():
 #     result = {...}
-#     return result
 
 def endpoint(endpoint):
     def endpoint_decorator(func):
@@ -22,16 +23,17 @@ def endpoint(endpoint):
         def decorated_func(*args, **kwargs):
             # Connect to the database
             global cursor
-            connection = pymysql.connect(host='139.59.51.152',
-                                         user='root',
-                                         password='appteamback3nd',
+            connection = pymysql.connect(host='52.41.147.246',
+                                         user='quizuser',
+                                         password='quizadder',
                                          db='hillffair',
                                          cursorclass=pymysql.cursors.DictCursor)
             cursor = connection.cursor()
+
             if (connection):
                 result = func(*args, **kwargs)
                 connection.commit()
-                cursor.close()
+                connection.close()
                 return json.dumps(result), 200, {'Content-Type': 'text/json'}
             else:
                 return "{'error':'Error: no connection to database'}", 500, {'Content-Type': 'text/json'}
@@ -39,9 +41,9 @@ def endpoint(endpoint):
     return endpoint_decorator
 
 @endpoint('/getwall')
-# Sample Response: [{"id": 1, "name": "Daniyaal Khan", "rollno": "17mi561", "image_id": 1, "likes": 2}]
+# Sample Response: [{"id": 1, "name": "Daniyaal Khan", "rollno": "17mi561", "likes": 2}]
 def getwall():
-    query = cursor.execute("SELECT w.id as id, p.name as name, p.id as rollno, w.id as image_id, (SELECT COUNT(*) FROM likes WHERE post_id=w.id) AS likes FROM wall as w, profile as p WHERE p.id=w.profile_id ORDER BY w.time DESC")
+    query = cursor.execute("SELECT w.id as main_pic, p.name as name, p.id as rollno, w.image_url as image_id, p.image_url as profile_pic, (SELECT COUNT(*) FROM likes WHERE post_id=w.id) AS likes FROM wall as w, profile as p WHERE p.id=w.profile_id ORDER BY w.time DESC")
     result = cursor.fetchall()
     return result
 
@@ -64,7 +66,9 @@ def postlike(image_id, user_id):
 @endpoint('/getleaderboard')
 # Sample Response: [{"id": "17mi561", "name": "Daniyaal Khan", "score": 60.0}, {"id": "17mi560", "name": "Check", "score": 10.0}]
 def getleaderboard():
-    query = cursor.execute("SELECT p.id, p.name, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
+    q=cursor.execute("SET @row_number=0")
+    # print("SELECT p.id, p.name, p.image_url, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
+    query = cursor.execute("SELECT (@row_number:=@row_number+1) as rank ,p.id, p.name, p.image_url, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
     result = cursor.fetchall()
     return result
 
@@ -79,17 +83,16 @@ def postpoint(rollno, points):
 
 @endpoint('/getpoint/<rollno>')
 def getpoint(rollno):
-    query = cursor.execute("SELECT SUM(amount) AS points FROM score WHERE profile_id = '"+rollno+"' AND time>=UNIX_timestamp(timestamp(current_date)+19800)")
+    query = cursor.execute("SELECT SUM(amount) AS points FROM score WHERE profile_id = '"+rollno+"' AND time>=(UNIX_timestamp(timestamp(current_date))+19800)")
     result = cursor.fetchone()
     return result
 
 @endpoint('/getschedule')
 def getschedule():
-    query = cursor.execute("SELECT * FROM events")
+    query = cursor.execute("SELECT name as club_name, event_id,event_name,event_time,club_logo FROM events,clubs WHERE events.club_id=clubs.id")
     result = cursor.fetchall()
-    print(query)
-    for x in result:
-        x["event_time"] = x["event_time"].timestamp()
+    #for x in result:
+        #x["event_time"] = x["event_time"].timestamp()
     return result
 
 @endpoint('/posteventlike/<user_id>/<event_id>')
@@ -160,31 +163,25 @@ def getquiz():
     random.shuffle(result)
     return {'questions':result[:10]}
 
-@endpoint('/postprofile')
-def postprofile():
-    # TODO: Daniyaal or Kartik Sir
-    return 'Hello bitch'
+@endpoint('/postprofile/<name>/<rollno>/<int:phone_no>')
+def postprofile(name,rollno,phone_no):
+    query = cursor.execute("INSERT into profile value ('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL)")
+    if query:
+        return {'status': 'success'}
+    else:
+        return {'status': 'fail'}
 
 @endpoint('/getprofile/<user_id>')
 def getprofile(user_id):
-    # TODO: Assigned to Utkarsh Jaiprakash Singh
-    query = cursor.execute("SELECT * FROM profile WHERE id=%s", (user_id))
+    #print("SELECT profile.name as name, profile.id as rollno, profile.image_url as profile_pic, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) as score FROM profile WHERE profile.id ='"+user_id+"'")
+    query = cursor.execute("SELECT profile.name as name, profile.id as rollno, profile.image_url as profile_pic, (SELECT SUM(amount) FROM score WHERE score.profile_id=rollno AND time>=UNIX_timestamp(timestamp(current_date)+19800)) as score FROM profile WHERE profile.id ='"+user_id+"'")
     result = cursor.fetchall()
-    cursor.execute("SET @row_number=0;")
-    query1 = cursor.execute("select profile_id, SUM(amount) as score,(@row_number:=@row_number+1) as rank from score group by profile_id having profile_id=%s  order by sum(amount) desc", (user_id))
-    result1 = cursor.fetchall()
-    if query1 !=0:
-        result[0]['rank'] = result1[0]['rank']
-        result[0]['score'] = result1[0]['score']
+    # print(result1)
     return result
 
-@endpoint('/postwall')
-def postwall():
-    return 'Hello, World!'
-
-@endpoint('/deletewallpost/<user_id>/<int:image_id>')
-def deletewallpost(user_id,image_id):
-    query = cursor.execute("DELETE from wall where wall.id='"+image_id+"'")
+@endpoint('/deletewallpost/<int:image_id>')
+def deletewallpost(image_id):
+    query = cursor.execute("DELETE from wall where wall.id='"+str(image_id)+"'")
     if query:
         return {'status': 'success'}
     else:
