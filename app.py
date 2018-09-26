@@ -4,6 +4,7 @@ import json, time
 from datetime import datetime
 import random
 import pymysql.cursors
+import base64
 app = Flask(__name__)
 
 
@@ -40,6 +41,17 @@ def endpoint(endpoint):
         return app.route(endpoint)(decorated_func)
     return endpoint_decorator
 
+
+
+@endpoint('/postwall/<rollno>/<imageurl>')
+# Sample Response: [{"id": 1, "name": "Daniyaal Khan", "rollno": "17mi561", "likes": 2}]
+def postwall(rollno,imageurl):
+    imageurl=base64.b64decode(imageurl)
+    query = cursor.execute("INSERT into wall w values (NULL,'"+rollno+"','"+imageurl+"',"+str(time.time()+19800)+")")
+    result = cursor.fetchall()
+    return result
+
+
 @endpoint('/getwall/<int:start>')
 # Sample Response: [{"id": 1, "name": "Daniyaal Khan", "rollno": "17mi561", "likes": 2}]
 def getwall(start):
@@ -67,7 +79,7 @@ def postlike(image_id, user_id):
 # Sample Response: [{"id": "17mi561", "name": "Daniyaal Khan", "score": 60.0}, {"id": "17mi560", "name": "Check", "score": 10.0}]
 def getleaderboard(startfrom):
     # print("SELECT p.id, p.name, p.image_url, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
-    query = cursor.execute("SELECT p.id, p.name, p.image_url, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score, (SELECT SUM(referal_score) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) as referal_score FROM profile AS p ORDER BY score DESC LIMIT "+str(startfrom)+", "+str(startfrom+10))
+    query = cursor.execute("SELECT p.id, p.name, p.image_url, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score, (SELECT SUM(referal_score) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) as referal_score FROM profile AS p ORDER BY (score+referal_score) DESC LIMIT "+str(startfrom)+", "+str(startfrom+10))
     result = cursor.fetchall()
     return result
 
@@ -80,7 +92,6 @@ def postpoint(rollno, points):
     else:
         return {'status': 'fail'}
 
-# error aayega
 @endpoint('/getpoint/<rollno>')
 def getpoint(rollno):
     query = cursor.execute("SELECT SUM(amount) AS points FROM score WHERE profile_id = '"+rollno+"' AND time>=(UNIX_timestamp(timestamp(current_date))+19800)")
@@ -163,9 +174,10 @@ def getquiz():
     random.shuffle(result)
     return {'questions':result[:10]}
 
-@endpoint('/postprofile/<name>/<rollno>/<int:phone_no>/<referal>')
-def postprofile(name,rollno,phone_no,referal):
-    query = cursor.execute("INSERT into profile value ('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL,'"+referal+"')")
+@endpoint('/postprofile/<name>/<rollno>/<int:phone_no>/<referal>/<imageurl>')
+def postprofile(name,rollno,phone_no,referal,imageurl):
+    imageurl=base64.b64decode(imageurl)
+    query = cursor.execute("INSERT into profile value ('"+rollno+"',"+str(phone_no)+",'"+name+"','"+imageurl+"','"+referal+"')")
     query1 = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"',0,"+str(time.time()+19800)+",10),(NULL, '"+referal+"',0,"+str(time.time()+19800)+",10)")
     if query and query1:
         return {'status': 'success'}
@@ -209,7 +221,7 @@ def gettambolastatus(user_id):
 
 @endpoint('/posttambolastatus/<user_id>/<int:value>')
 def posttambolastatus(user_id,value):
-    query = cursor.execute("UPDATE game_status set tambola_status = "+str(value)+" where user_id = '"+user_id+"'")
+    query = cursor.execute("UPDATE game_status set tambola_status = 1 where user_id = '"+user_id+"'")
     if query:
         return {'status':'success'}
     else:
@@ -223,7 +235,7 @@ def getquizstatus(user_id):
 
 @endpoint('/postquizstatus/<user_id>/<int:value>')
 def postquizstatus(user_id,value):
-    query = cursor.execute("UPDATE game_status set quiz_status = "+str(value)+" where user_id = '"+user_id+"'")
+    query = cursor.execute("UPDATE game_status set quiz_status = 1 where user_id = '"+user_id+"'")
     if query:
         return {'status':'success'}
     else:
