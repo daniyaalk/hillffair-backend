@@ -161,14 +161,22 @@ def getquiz():
     random.shuffle(result)
     return {'questions':result[:10]}
 
-@endpoint('/postprofile/<name>/<rollno>/<int:phone_no>')
-def postprofile(name,rollno,phone_no):
-    print("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL, NULL)")
-    query = cursor.execute("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL, NULL)")
-    if query:
-        return {'status': 'success'}
+@endpoint('/postprofile/<name>/<rollno>/<phone_no>/<referral>')
+def postprofile(name,rollno,phone_no, referral):
+
+    #Check if user already exists
+    query = cursor.execute("SELECT COUNT(id) as count FROM profile WHERE id='"+rollno+"'")
+
+    if (cursor.fetchone()['count']!=0):
+        query = cursor.execute("UPDATE profile SET name='"+name+"', phone='"+phone_no+"' WHERE id='"+rollno+"'")
     else:
-        return {'status': 'fail'}
+        query = cursor.execute("INSERT INTO profile VALUES('"+rollno+"', "+phone_no+", '"+name+"', '', '"+referral+"')")
+        print("INSERT INTO score VALUES(NULL, '"+referral+"', 10.0, "+str(int(time.time()+(60*60*24*30)))+")")
+        query = cursor.execute("INSERT INTO score VALUES(NULL, '"+referral+"', 10.0, "+str(int(time.time()+(60*60*24*30)))+")")
+
+
+    #query = cursor.execute("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL, NULL)")
+    return {'status': 'success'}
 
 @endpoint('/getprofile/<user_id>')
 def getprofile(user_id):
