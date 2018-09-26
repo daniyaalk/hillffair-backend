@@ -48,8 +48,7 @@ def endpoint(endpoint):
 def postwall(rollno,imageurl):
     imageurl=base64.b64decode(imageurl)
     query = cursor.execute("INSERT into wall w values (NULL,'"+rollno+"','"+imageurl+"',"+str(time.time()+19800)+")")
-    result = cursor.fetchall()
-    return result
+    return {'status': 'success'}
 
 
 @endpoint('/getwall/<int:start>/<user_id>')
