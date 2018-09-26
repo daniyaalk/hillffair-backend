@@ -171,7 +171,12 @@ def postprofile(name,rollno,phone_no,referal):
     if query and query1:
         return {'status': 'success'}
     else:
-        return {'status': 'fail'}
+        query = cursor.execute("INSERT INTO profile VALUES('"+rollno+"', "+phone_no+", '"+name+"', '', '"+referral+"')")
+        query = cursor.execute("INSERT INTO score VALUES(NULL, '"+referral+"', 10.0, "+str(int(time.time()+(60*60*24*30)))+")")
+
+
+    #query = cursor.execute("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL, NULL)")
+    return {'status': 'success'}
 
 @endpoint('/getprofile/<user_id>')
 def getprofile(user_id):
