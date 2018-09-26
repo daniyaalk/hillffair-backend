@@ -174,20 +174,25 @@ def getquiz():
     random.shuffle(result)
     return {'questions':result[:10]}
 
-@endpoint('/postprofile/<name>/<rollno>/<int:phone_no>/<referal>/<imageurl>')
+@endpoint('/postprofile/<name>/<rollno>/<phone_no>/<referal>/<imageurl>')
 def postprofile(name,rollno,phone_no,referal,imageurl):
     imageurl=base64.b64decode(imageurl)
-    query = cursor.execute("INSERT into profile value ('"+rollno+"',"+str(phone_no)+",'"+name+"','"+imageurl+"','"+referal+"')")
-    query1 = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"',0,"+str(time.time()+19800)+",10),(NULL, '"+referal+"',0,"+str(time.time()+19800)+",10)")
-    if query and query1:
-        return {'status': 'success'}
-    else:
-        query = cursor.execute("INSERT INTO profile VALUES('"+rollno+"', "+phone_no+", '"+name+"', '', '"+referral+"')")
-        query = cursor.execute("INSERT INTO score VALUES(NULL, '"+referral+"', 10.0, "+str(int(time.time()+(60*60*24*30)))+")")
+    try:
+        query = cursor.execute("INSERT into profile value ('"+rollno+"',"+str(phone_no)+",'"+name+"','"+imageurl+"','"+referal+"')")
+    except: 
+        query = cursor.execute("UPDATE profile set name = '"+name+"',phone = "+str(phone_no)+",image_url = '"+imageurl+"' where id='"+rollno+"'") 
+        if query:
+            return {'status': 'success'}
+        else
+            return {'status' : 'fail'}
 
-
-    #query = cursor.execute("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL, NULL)")
-    return {'status': 'success'}
+    else: 
+        query1 = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"',0,"+str(time.time()+19800)+",10),(NULL, '"+referal+"',0,"+str(time.time()+19800)+",10)")
+        if query and query1:
+        #query = cursor.execute("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL, NULL)")
+            return {'status': 'success'}
+        else
+            return {'status' : 'fail'}
 
 @endpoint('/getprofile/<user_id>')
 def getprofile(user_id):
