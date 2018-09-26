@@ -65,20 +65,23 @@ def postlike(image_id, user_id):
 
 @endpoint('/getleaderboard/<int:startfrom>')
 # Sample Response: [{"id": "17mi561", "name": "Daniyaal Khan", "score": 60.0}, {"id": "17mi560", "name": "Check", "score": 10.0}]
-def getleaderboard(startfrom):
-    query = cursor.execute("SELECT p.id, p.name, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=(UNIX_timestamp(timestamp(current_date)))+19800) AS score FROM profile AS p ORDER BY score DESC LIMIT "+str(startfrom)+", "+str(startfrom+10))
+def getleaderboard():
+    q=cursor.execute("SET @row_number=0")
+    # print("SELECT p.id, p.name, p.image_url, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
+    query = cursor.execute("SELECT (@row_number:=@row_number+1) as rank ,p.id, p.name, p.image_url, (SELECT SUM(amount), FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score, (SELECT SUM(referal_score), FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) as referal_score FROM profile AS p ORDER BY score DESC")
     result = cursor.fetchall()
     return result
 
 
 @endpoint('/postpoint/<rollno>/<int:points>')
 def postpoint(rollno, points):
-    query = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"', "+str(points)+", "+str(time.time()+19800)+")")
+    query = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"', "+str(points)+", "+str(time.time()+19800)+",0.0)")
     if query:
         return {'status': 'success'}
     else:
         return {'status': 'fail'}
 
+# error aayega
 @endpoint('/getpoint/<rollno>')
 def getpoint(rollno):
     query = cursor.execute("SELECT SUM(amount) AS points FROM score WHERE profile_id = '"+rollno+"' AND time>=(UNIX_timestamp(timestamp(current_date))+19800)")
@@ -161,11 +164,11 @@ def getquiz():
     random.shuffle(result)
     return {'questions':result[:10]}
 
-@endpoint('/postprofile/<name>/<rollno>/<int:phone_no>')
-def postprofile(name,rollno,phone_no):
-    print("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL, NULL)")
-    query = cursor.execute("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL, NULL)")
-    if query:
+@endpoint('/postprofile/<name>/<rollno>/<int:phone_no>/<referal>')
+def postprofile(name,rollno,phone_no,referal):
+    query = cursor.execute("INSERT into profile value ('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL,'"+referal+"')")
+    query1 = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"',0,"+str(time.time()+19800)+",10),(NULL, '"+referal+"',0,"+str(time.time()+19800)+",10)")
+    if query and query1:
         return {'status': 'success'}
     else:
         return {'status': 'fail'}
