@@ -85,8 +85,8 @@ def postlike(image_id, user_id,action):
 @endpoint('/getleaderboard/<int:startfrom>')
 # Sample Response: [{"id": "17mi561", "name": "Daniyaal Khan", "score": 60.0}, {"id": "17mi560", "name": "Check", "score": 10.0}]
 def getleaderboard(startfrom):
-    # print("SELECT p.id, p.name, p.image_url, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
-    query = cursor.execute("SELECT p.id, p.name, p.image_url, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score, (SELECT SUM(referal_score) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) as referal_score FROM profile AS p ORDER BY (score+referal_score) DESC LIMIT "+str(startfrom)+", "+str(startfrom+10))
+    #print("SELECT p.id, p.name, p.image_url, ((SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=(UNIX_timestamp(timestamp(current_date))+19800)+(SELECT SUM(referal_score) FROM score WHERE profile_id=p.id)) as score FROM profile AS p ORDER BY score DESC LIMIT "+str(startfrom)+", "+str(startfrom+10))
+    query = cursor.execute("SELECT p.id, p.name, p.image_url, ((SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=(UNIX_timestamp(timestamp(current_date))+19800))+(SELECT SUM(referal_score) FROM score WHERE profile_id=p.id)) as score FROM profile AS p ORDER BY score DESC LIMIT "+str(startfrom)+", "+str(startfrom+10))
     result = cursor.fetchall()
     return result
 
@@ -186,14 +186,14 @@ def postprofile(name,rollno,phone_no,referal,imageurl):
     imageurl=base64.b64decode(imageurl)
     try:
         query = cursor.execute("INSERT into profile value ('"+rollno+"',"+str(phone_no)+",'"+name+"','"+imageurl+"','"+referal+"')")
-    except: 
-        query = cursor.execute("UPDATE profile set name = '"+name+"',phone = "+str(phone_no)+",image_url = '"+imageurl+"' where id='"+rollno+"'") 
+    except:
+        query = cursor.execute("UPDATE profile set name = '"+name+"',phone = "+str(phone_no)+",image_url = '"+imageurl+"' where id='"+rollno+"'")
         if query:
             return {'status': 'success'}
         else:
             return {'status' : 'fail'}
 
-    else: 
+    else:
         query1 = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"',0,"+str(time.time()+19800)+",10),(NULL, '"+referal+"',0,"+str(time.time()+19800)+",10)")
         if query and query1:
         #query = cursor.execute("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL, NULL)")
