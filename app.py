@@ -187,6 +187,41 @@ def deletewallpost(image_id):
     else:
         return {'status': 'fail'}
 
+@endpoint('/postgamestatus/<user_id>')
+def postgamestatus(user_id):
+    query = cursor.execute("INSERT into game_status values ('"+user_id+"',0,0)")
+    if query:
+        return {'status':'success'}
+    else:
+        return {'status': 'failure'} 
+
+@endpoint('/gettambolastatus/<user_id>')
+def gettambolastatus(user_id):
+    query = cursor.execute("SELECT tambola_status from game_status where user_id='"+user_id+"'")
+    result = cursor.fetchone()
+    return result 
+
+@endpoint('/posttambolastatus/<user_id>/<int:value>')
+def posttambolastatus(user_id,value):
+    query = cursor.execute("UPDATE game_status set tambola_status = "+str(value)+" where user_id = '"+user_id+"'")
+    if query:
+        return {'status':'success'}
+    else:
+        return {'status': 'failure'} 
+
+@endpoint('/getquizstatus/<user_id>')
+def getquizstatus(user_id):
+    query = cursor.execute("SELECT quiz_status from game_status where user_id='"+user_id+"'")
+    result = cursor.fetchone()
+    return result
+
+@endpoint('/postquizstatus/<user_id>/<int:value>')
+def postquizstatus(user_id,value):
+    query = cursor.execute("UPDATE game_status set quiz_status = "+str(value)+" where user_id = '"+user_id+"'")
+    if query:
+        return {'status':'success'}
+    else:
+        return {'status': 'failure'} 
 
 if __name__ == '__main__':
     app.run(debug = True, host='0.0.0.0')
