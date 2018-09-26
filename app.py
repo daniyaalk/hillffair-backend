@@ -96,26 +96,26 @@ def getschedule():
         #x["event_time"] = x["event_time"].timestamp()
     return result
 
-# @endpoint('/posteventlike/<user_id>/<event_id>')
-# def posteventlike(user_id, event_id):
-#     userCheck = cursor.execute("SELECT * from profile where id = %s", (user_id))
-#     if userCheck == 0:
-#         return {'status': 'No such user'}
-#     eventCheck = cursor.execute("SELECT * from events where event_id = %s", (event_id))
-#     if eventCheck == 0:
-#         return {'status': 'No such event'}
-#     query = cursor.execute("SELECT * from event_likes where user_id = %s AND event_id = %s", (user_id, event_id))
-#     if query == 0:
-#         cursor.execute("INSERT INTO event_likes VALUES (NULL, %s, %s)", (event_id, user_id))
-#         return {'status': 'success'}
-#     else:
-#         return {'status': 'Already Liked'}
+@endpoint('/posteventlike/<user_id>/<event_id>')
+def posteventlike(user_id, event_id):
+    userCheck = cursor.execute("SELECT * from profile where id = %s", (user_id))
+    if userCheck == 0:
+        return {'status': 'No such user'}
+    eventCheck = cursor.execute("SELECT * from events where event_id = %s", (event_id))
+    if eventCheck == 0:
+        return {'status': 'No such event'}
+    query = cursor.execute("SELECT * from event_likes where user_id = %s AND event_id = %s", (user_id, event_id))
+    if query == 0:
+        cursor.execute("INSERT INTO event_likes VALUES (NULL, %s, %s)", (event_id, user_id))
+        return {'status': 'success'}
+    else:
+        return {'status': 'Already Liked'}
 
-# @endpoint('/geteventlike/<event_id>')
-# def geteventlike(event_id):
-#     query = cursor.execute("SELECT COUNT(*) from event_likes where event_id = %s", event_id)
-#     result = cursor.fetchone()
-#     return {'likes': result["COUNT(*)"]}
+@endpoint('/geteventlike/<event_id>')
+def geteventlike(event_id):
+    query = cursor.execute("SELECT COUNT(*) from event_likes where event_id = %s", event_id)
+    result = cursor.fetchone()
+    return {'likes': result["COUNT(*)"]}
 
 @endpoint('/getclubs')
 def getclubs():
@@ -138,19 +138,19 @@ def getsponsor():
 winarray = list(range(1,91))
 random.shuffle(winarray)
 
-# @endpoint('/gettambolanumber')
-# def gettambolanumber():
-#     time = int(datetime(2018, datetime.now().month, datetime.now().day, 22, 0).timestamp())
-#     current = int(datetime.now().timestamp())
-#     if(0 <= current - time <= 3600):
-#         i = ((current - time) // 15) % 90
-#         return {'number' : winarray[i]}
-#     else:
-#         return {'status': 'Unavailable'}
+@endpoint('/gettambolanumber')
+def gettambolanumber():
+    time = int(datetime(2018, datetime.now().month, datetime.now().day, 22, 0).timestamp())
+    current = int(datetime.now().timestamp())
+    if(0 <= current - time <= 3600):
+        i = ((current - time) // 15) % 90
+        return {'number' : winarray[i]}
+    else:
+        return {'status': 'Unavailable'}
 
-# @endpoint('/posttambolaresult')
-# def posttambolaresult():
-#     return 'Hello, World!'
+@endpoint('/posttambolaresult')
+def posttambolaresult():
+    return 'Hello, World!'
 
 @endpoint('/getquiz')
 def getquiz():
