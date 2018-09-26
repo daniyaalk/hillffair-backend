@@ -52,10 +52,10 @@ def postwall(rollno,imageurl):
     return result
 
 
-@endpoint('/getwall/<int:start>')
+@endpoint('/getwall/<int:start>/<user_id>')
 # Sample Response: [{"id": 1, "name": "Daniyaal Khan", "rollno": "17mi561", "likes": 2}]
-def getwall(start):
-    query = cursor.execute("SELECT w.id as id, p.name as name, p.id as rollno, (SELECT COUNT(*) FROM likes WHERE post_id=w.id) AS likes FROM wall as w, profile as p WHERE p.id=w.profile_id ORDER BY w.time DESC LIMIT "+str(start)+", "+str(start+10))
+def getwall(start,user_id):
+    query = cursor.execute("SELECT w.id as id, p.name as name, p.id as rollno, (SELECT COUNT(*) FROM likes WHERE post_id=w.id) AS likes, (Select count(*) from likes where post_id=w.id AND profile_id='"+user_id+"') as liked  FROM wall as w, profile as p WHERE p.id=w.profile_id ORDER BY w.time DESC LIMIT "+str(start)+", "+str(start+10))
     result = cursor.fetchall()
     return result
 
@@ -67,13 +67,20 @@ def getlike(image_id):
     return result
 
 
-@endpoint('/postlike/<int:image_id>/<user_id>')
-def postlike(image_id, user_id):
-        query = cursor.execute("INSERT INTO likes VALUES(NULL, '"+user_id+"', "+str(image_id)+")")
-        if query:
-            return {'status': 'success'}
+@endpoint('/postlike/<int:image_id>/<user_id>/<int:action>')
+def postlike(image_id, user_id,action):
+        if action==1:
+            query = cursor.execute("INSERT INTO likes VALUES(NULL, '"+user_id+"', "+str(image_id)+")")
+            if query:
+                return {'status': 'success'}
+            else:
+                return {'status': 'fail'}
         else:
-            return {'status': 'fail'}
+            query = cursor.execute("DELETE from likes where profile_id = '"+user_id+"' AND post_id = '"+str(image_id)+"'")
+            if query:
+                return {'status': 'success'}
+            else:
+                return {'status': 'fail'}
 
 @endpoint('/getleaderboard/<int:startfrom>')
 # Sample Response: [{"id": "17mi561", "name": "Daniyaal Khan", "score": 60.0}, {"id": "17mi560", "name": "Check", "score": 10.0}]
@@ -183,7 +190,7 @@ def postprofile(name,rollno,phone_no,referal,imageurl):
         query = cursor.execute("UPDATE profile set name = '"+name+"',phone = "+str(phone_no)+",image_url = '"+imageurl+"' where id='"+rollno+"'") 
         if query:
             return {'status': 'success'}
-        else
+        else:
             return {'status' : 'fail'}
 
     else: 
@@ -191,7 +198,7 @@ def postprofile(name,rollno,phone_no,referal,imageurl):
         if query and query1:
         #query = cursor.execute("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL, NULL)")
             return {'status': 'success'}
-        else
+        else:
             return {'status' : 'fail'}
 
 @endpoint('/getprofile/<user_id>')
