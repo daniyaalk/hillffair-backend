@@ -59,6 +59,7 @@ def getwall(start,user_id):
     result = cursor.fetchall()
     return result
 
+
 @endpoint('/getlike/<int:image_id>')
 # Sample Response: {"likes": 2}
 def getlike(image_id):
