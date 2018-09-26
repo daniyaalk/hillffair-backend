@@ -66,9 +66,8 @@ def postlike(image_id, user_id):
 @endpoint('/getleaderboard/<int:startfrom>')
 # Sample Response: [{"id": "17mi561", "name": "Daniyaal Khan", "score": 60.0}, {"id": "17mi560", "name": "Check", "score": 10.0}]
 def getleaderboard(startfrom):
-    q=cursor.execute("SET @row_number=0")
     # print("SELECT p.id, p.name, p.image_url, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
-    query = cursor.execute("SELECT (@row_number:=@row_number+1) as rank ,p.id, p.name, p.image_url, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score, (SELECT SUM(referal_score) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) as referal_score FROM profile AS p ORDER BY score DESC LIMIT "+str(startfrom)+", "+str(startfrom+10))
+    query = cursor.execute("SELECT p.id, p.name, p.image_url, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score, (SELECT SUM(referal_score) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) as referal_score FROM profile AS p ORDER BY score DESC LIMIT "+str(startfrom)+", "+str(startfrom+10))
     result = cursor.fetchall()
     return result
 
