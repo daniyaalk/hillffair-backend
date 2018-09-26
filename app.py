@@ -68,7 +68,7 @@ def postlike(image_id, user_id):
 def getleaderboard():
     q=cursor.execute("SET @row_number=0")
     # print("SELECT p.id, p.name, p.image_url, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
-    query = cursor.execute("SELECT (@row_number:=@row_number+1) as rank ,p.id, p.name, p.image_url, (SELECT SUM(amount), FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score, (SELECT SUM(referal_score), FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) as referal_score FROM profile AS p ORDER BY score DESC")
+    query = cursor.execute("SELECT (@row_number:=@row_number+1) as rank ,p.id, p.name, p.image_url, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS question_score, (SELECT SUM(referal_score) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) as referal_score FROM profile p order by (question_score+referal_score) DESC")
     result = cursor.fetchall()
     return result
 
