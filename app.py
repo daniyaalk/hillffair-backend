@@ -47,7 +47,8 @@ def endpoint(endpoint):
 # Sample Response: [{"id": 1, "name": "Daniyaal Khan", "rollno": "17mi561", "likes": 2}]
 def postwall(rollno,imageurl):
     imageurl=base64.b64decode(imageurl)
-    query = cursor.execute("INSERT into wall w values (NULL,'"+rollno+"','"+imageurl+"',"+str(time.time()+19800)+")")
+    #print("INSERT into wall values(NULL,'"+rollno+"','"+imageurl+"', "+str(int(time.time()+19800))+")")
+    query = cursor.execute("INSERT into wall values(NULL,'"+rollno+"','"+imageurl+"', "+str(int(time.time()+19800))+")")
     return {'status': 'success'}
 
 
