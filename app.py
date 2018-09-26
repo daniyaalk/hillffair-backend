@@ -163,7 +163,7 @@ def getquiz():
 
 @endpoint('/postprofile/<name>/<rollno>/<int:phone_no>')
 def postprofile(name,rollno,phone_no):
-    query = cursor.execute("INSERT into profile value ('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL)")
+    query = cursor.execute("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL)")
     if query:
         return {'status': 'success'}
     else:
