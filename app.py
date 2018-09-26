@@ -40,10 +40,10 @@ def endpoint(endpoint):
         return app.route(endpoint)(decorated_func)
     return endpoint_decorator
 
-@endpoint('/getwall')
+@endpoint('/getwall/<int:start>')
 # Sample Response: [{"id": 1, "name": "Daniyaal Khan", "rollno": "17mi561", "likes": 2}]
-def getwall():
-    query = cursor.execute("SELECT w.id as main_pic, p.name as name, p.id as rollno, w.image_url as image_id, p.image_url as profile_pic, (SELECT COUNT(*) FROM likes WHERE post_id=w.id) AS likes FROM wall as w, profile as p WHERE p.id=w.profile_id ORDER BY w.time DESC")
+def getwall(start):
+    query = cursor.execute("SELECT w.id as id, p.name as name, p.id as rollno, (SELECT COUNT(*) FROM likes WHERE post_id=w.id) AS likes FROM wall as w, profile as p WHERE p.id=w.profile_id ORDER BY w.time DESC LIMIT "+str(start)+", "+str(start+10))
     result = cursor.fetchall()
     return result
 
@@ -63,12 +63,10 @@ def postlike(image_id, user_id):
         else:
             return {'status': 'fail'}
 
-@endpoint('/getleaderboard')
+@endpoint('/getleaderboard/<int:startfrom>')
 # Sample Response: [{"id": "17mi561", "name": "Daniyaal Khan", "score": 60.0}, {"id": "17mi560", "name": "Check", "score": 10.0}]
-def getleaderboard():
-    q=cursor.execute("SET @row_number=0")
-    # print("SELECT p.id, p.name, p.image_url, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
-    query = cursor.execute("SELECT (@row_number:=@row_number+1) as rank ,p.id, p.name, p.image_url, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) AS score FROM profile AS p ORDER BY score DESC")
+def getleaderboard(startfrom):
+    query = cursor.execute("SELECT p.id, p.name, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=(UNIX_timestamp(timestamp(current_date)))+19800) AS score FROM profile AS p ORDER BY score DESC LIMIT "+str(startfrom)+", "+str(startfrom+10))
     result = cursor.fetchall()
     return result
 
@@ -193,13 +191,13 @@ def postgamestatus(user_id):
     if query:
         return {'status':'success'}
     else:
-        return {'status': 'failure'} 
+        return {'status': 'failure'}
 
 @endpoint('/gettambolastatus/<user_id>')
 def gettambolastatus(user_id):
     query = cursor.execute("SELECT tambola_status from game_status where user_id='"+user_id+"'")
     result = cursor.fetchone()
-    return result 
+    return result
 
 @endpoint('/posttambolastatus/<user_id>/<int:value>')
 def posttambolastatus(user_id,value):
@@ -207,7 +205,7 @@ def posttambolastatus(user_id,value):
     if query:
         return {'status':'success'}
     else:
-        return {'status': 'failure'} 
+        return {'status': 'failure'}
 
 @endpoint('/getquizstatus/<user_id>')
 def getquizstatus(user_id):
@@ -221,7 +219,7 @@ def postquizstatus(user_id,value):
     if query:
         return {'status':'success'}
     else:
-        return {'status': 'failure'} 
+        return {'status': 'failure'}
 
 if __name__ == '__main__':
     app.run(debug = True, host='0.0.0.0')
