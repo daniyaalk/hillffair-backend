@@ -183,12 +183,14 @@ def getquiz():
 
 @endpoint('/postprofile/<name>/<rollno>/<phone_no>/<referal>/<imageurl>')
 def postprofile(name,rollno,phone_no,referal,imageurl):
+
     imageurl=base64.b64decode(imageurl)
+    print("s")
     try:
         print("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"','"+imageurl+"','"+referal+"')")
-        #query = cursor.execute("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"','"+imageurl+"','"+referal+"')")
+        query = cursor.execute("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"','"+imageurl+"','"+referal+"')")
     except:
-        print("a");
+        print("UPDATE profile set name = '"+name+"',phone = "+str(phone_no)+",image_url = '"+imageurl+"' where id='"+rollno+"'");
         query = cursor.execute("UPDATE profile set name = '"+name+"',phone = "+str(phone_no)+",image_url = '"+imageurl+"' where id='"+rollno+"'")
 
         return {'status': 'success'}
