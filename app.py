@@ -203,6 +203,19 @@ def postprofile(name,rollno,phone_no,referal,imageurl):
         #query = cursor.execute("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL, NULL)")
         return {'status': 'success'}
 
+@endpoint('/checkuser/<phone_no>')
+def checkuser(phone_no):
+    query = cursor.execute("SELECT COUNT(*) as user_count from profile where phone="+phone_no)
+    result = cursor.fetchone()
+    print(result['user_count'])
+    if result['user_count'] > 0:
+        query = cursor.execute("SELECT * from profile where phone="+phone_no)
+        result = {'exists': True, 'data': cursor.fetchone()}
+        return result
+    else:
+        return {'exists': False, 'data': {}}
+
+
 @endpoint('/getprofile/<user_id>')
 def getprofile(user_id):
     #print("SELECT profile.name as name, profile.id as rollno, profile.image_url as profile_pic, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) as score FROM profile WHERE profile.id ='"+user_id+"'")
