@@ -205,7 +205,7 @@ def postprofile(name,rollno,phone_no,referal,imageurl):
 @endpoint('/getprofile/<user_id>')
 def getprofile(user_id):
     #print("SELECT profile.name as name, profile.id as rollno, profile.image_url as profile_pic, (SELECT SUM(amount) FROM score WHERE profile_id=p.id AND time>=UNIX_timestamp(timestamp(current_date)+19800)) as score FROM profile WHERE profile.id ='"+user_id+"'")
-    query = cursor.execute("SELECT profile.name as name, profile.id as rollno, profile.image_url as profile_pic, ((SELECT SUM(amount) FROM score WHERE score.profile_id=rollno AND time>=UNIX_timestamp(timestamp(current_date)+19800))+(SELECT SUM(referal_score) FROM score WHERE score.profile_id=rollno)) as score FROM profile WHERE profile.id ='"+user_id+"'")
+    query = cursor.execute("SELECT profile.name as name, profile.id as rollno, profile.image_url as profile_pic, (SELECT SUM(referal_score) FROM score WHERE score.profile_id=rollno) as score FROM profile WHERE profile.id ='"+user_id+"'")
     result = cursor.fetchall()
     # print(result1)
     return result
