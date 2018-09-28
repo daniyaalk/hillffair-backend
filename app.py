@@ -234,7 +234,7 @@ def deletewallpost(image_id):
 
 @endpoint('/postgamestatus/<user_id>')
 def postgamestatus(user_id):
-    query = cursor.execute("INSERT into game_status values ('"+user_id+"',0,0)")
+    query = cursor.execute("INSERT into game_status values ('"+user_id+"',0,0,0)")
     if query:
         return {'status':'success'}
     else:
@@ -242,13 +242,13 @@ def postgamestatus(user_id):
 
 @endpoint('/gettambolastatus/<user_id>')
 def gettambolastatus(user_id):
-    query = cursor.execute("SELECT tambola_status from game_status where user_id='"+user_id+"'")
+    query = cursor.execute("SELECT FORMAT(SUM(tambola_status),0) as tambolastatus from game_status where user_id='"+user_id+"'")
     result = cursor.fetchone()
     return result
 
-@endpoint('/posttambolastatus/<user_id>/<int:value>')
-def posttambolastatus(user_id,value):
-    query = cursor.execute("UPDATE game_status set tambola_status = 1 where user_id = '"+user_id+"'")
+@endpoint('/posttambolastatus/<user_id>')
+def posttambolastatus(user_id):
+    query = cursor.execute("INSERT into game_status values ('"+user_id+"',0,1,0)")
     if query:
         return {'status':'success'}
     else:
@@ -256,17 +256,34 @@ def posttambolastatus(user_id,value):
 
 @endpoint('/getquizstatus/<user_id>')
 def getquizstatus(user_id):
-    query = cursor.execute("SELECT quiz_status from game_status where user_id='"+user_id+"'")
+    query = cursor.execute("SELECT FORMAT(SUM(quiz_status),0) as quizstatus from game_status where user_id='"+user_id+"'")
+    # print("SELECT FORMAT(SUM(quiz_status),0) as quizstatus from game_status where user_id='"+user_id+"'")
     result = cursor.fetchone()
     return result
 
-@endpoint('/postquizstatus/<user_id>/<int:value>')
-def postquizstatus(user_id,value):
-    query = cursor.execute("UPDATE game_status set quiz_status = "+str(value)+" where user_id = '"+user_id+"'")
+@endpoint('/postquizstatus/<user_id>')
+def postquizstatus(user_id):
+    query = cursor.execute("INSERT into game_status values ('"+user_id+"',1,0,0)")
     if query:
         return {'status':'success'}
     else:
         return {'status': 'failure'}
+
+@endpoint('/getroulettecount/<user_id>')
+def getroulettecount(user_id):
+    query = cursor.execute("SELECT FORMAT(SUM(roulette_status),0) as roulettecount from game_status where user_id='"+user_id+"'")
+    result = cursor.fetchone()
+    return result
+
+@endpoint('/postroulettecount/<user_id>')
+def postroulettecount(user_id):
+    query = cursor.execute("INSERT into game_status values ('"+user_id+"',0,0,1)")
+    if query:
+        return {'status':'success'}
+    else:
+        return {'status': 'failure'}
+
+
 
 if __name__ == '__main__':
     app.run(debug = True, host='0.0.0.0')
