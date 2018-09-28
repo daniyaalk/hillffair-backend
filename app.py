@@ -262,7 +262,7 @@ def getquizstatus(user_id):
 
 @endpoint('/postquizstatus/<user_id>/<int:value>')
 def postquizstatus(user_id,value):
-    query = cursor.execute("UPDATE game_status set quiz_status = 1 where user_id = '"+user_id+"'")
+    query = cursor.execute("UPDATE game_status set quiz_status = "+str(value)+" where user_id = '"+user_id+"'")
     if query:
         return {'status':'success'}
     else:
