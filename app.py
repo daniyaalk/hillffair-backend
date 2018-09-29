@@ -187,14 +187,14 @@ def postprofile(name,rollno,phone_no,referal,imageurl):
     referal=base64.b64decode(referal)
     imageurl=base64.b64decode(imageurl)
     imageurl=(imageurl).decode('utf-8')
-    referal=referal.decode('utf-8')
+    referal=(referal).decode('utf-8')
     # print((imageurl).decode('utf-8')) 
     print(imageurl)
     print(referal)
     try:
         # print("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"','"+str(imageurl)+"','"+referal+"')")
         query = cursor.execute("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"','"+imageurl+"','"+referal+"')")
-        print(query)
+        # print(query)
     except:
         # print("UPDATE profile set name = '"+name+"',phone = "+str(phone_no)+",image_url = '"+imageurl+"' where id='"+rollno+"'");
         query = cursor.execute("UPDATE profile set name = '"+name+"',phone = "+str(phone_no)+",image_url = '"+str(imageurl)+"' where id='"+rollno+"'")
@@ -207,7 +207,7 @@ def postprofile(name,rollno,phone_no,referal,imageurl):
         #query = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"',10,"+str(1537940897)+",1),(NULL, '"+referal+"',10,"+str(1537940897)+",1)")
         query = cursor.execute("INSERT INTO score VALUES(NULL, '"+rollno+"',10,"+str(time.time()+(3600*24*30*6))+",1),(NULL, '"+referal+"',10,"+str(time.time()+(3600*24*30*6))+",1)")
         #query = cursor.execute("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"',NULL, NULL)")
-        return {'status': 'success'}
+    return {'status': 'success'}
 
 @endpoint('/checkuser/<phone_no>')
 def checkuser(phone_no):
