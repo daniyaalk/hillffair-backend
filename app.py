@@ -55,7 +55,7 @@ def postwall(rollno,imageurl):
 @endpoint('/getwall/<int:start>/<user_id>')
 # Sample Response: [{"id": 1, "name": "Daniyaal Khan", "rollno": "17mi561", "likes": 2}]
 def getwall(start,user_id):
-    query = cursor.execute("SELECT w.id as id, p.name as name, p.id as rollno, (SELECT COUNT(*) FROM likes WHERE post_id=w.id) AS likes, (Select count(*) from likes where post_id=w.id AND profile_id='"+user_id+"') as liked, w.image_url, p.image_url AS profile_pic  FROM wall as w, profile as p WHERE p.id=w.profile_id ORDER BY w.time DESC LIMIT "+str(start)+", "+str(start+10))
+    query = cursor.execute("SELECT w.id as id, p.name as name, p.id as rollno, (SELECT COUNT(*) FROM likes WHERE post_id=w.id) AS likes, (Select count(*) from likes where post_id=w.id AND profile_id='"+user_id+"') as liked, w.image_url, p.image_url AS profile_pic  FROM wall as w, profile as p WHERE p.id=w.profile_id ORDER BY w.time DESC LIMIT "+str(start)+", "+str(start+20))
     result = cursor.fetchall()
     return result
 
@@ -184,15 +184,21 @@ def getquiz():
 
 @endpoint('/postprofile/<name>/<rollno>/<phone_no>/<referal>/<imageurl>')
 def postprofile(name,rollno,phone_no,referal,imageurl):
-
+    referal=base64.b64decode(referal)
     imageurl=base64.b64decode(imageurl)
-    print("s")
+    imageurl=(imageurl).decode('utf-8')
+    referal=referal.decode('utf-8')
+    # print((imageurl).decode('utf-8')) 
+    print(imageurl)
+    print(referal)
     try:
-        print("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"','"+imageurl+"','"+referal+"')")
+        # print("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"','"+str(imageurl)+"','"+referal+"')")
         query = cursor.execute("INSERT into profile VALUES('"+rollno+"',"+str(phone_no)+",'"+name+"','"+imageurl+"','"+referal+"')")
+        print(query)
     except:
-        print("UPDATE profile set name = '"+name+"',phone = "+str(phone_no)+",image_url = '"+imageurl+"' where id='"+rollno+"'");
-        query = cursor.execute("UPDATE profile set name = '"+name+"',phone = "+str(phone_no)+",image_url = '"+imageurl+"' where id='"+rollno+"'")
+        # print("UPDATE profile set name = '"+name+"',phone = "+str(phone_no)+",image_url = '"+imageurl+"' where id='"+rollno+"'");
+        query = cursor.execute("UPDATE profile set name = '"+name+"',phone = "+str(phone_no)+",image_url = '"+str(imageurl)+"' where id='"+rollno+"'")
+        print(query)
 
         return {'status': 'success'}
 
@@ -271,7 +277,7 @@ def postquizstatus(user_id):
 
 @endpoint('/getroulettecount/<user_id>')
 def getroulettecount(user_id):
-    query = cursor.execute("SELECT FORMAT(SUM(roulette_status),0) as roulettecount from game_status where user_id='"+user_id+"'")
+    query = cursor.execute("SELECT FORMAT(SUM(roulette_status),0) as roulettecount from game_status where user_id='"+user_idx+"'")
     result = cursor.fetchone()
     return result
 
