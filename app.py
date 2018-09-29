@@ -187,7 +187,7 @@ def postprofile(name,rollno,phone_no,referal,imageurl):
     referal=base64.b64decode(referal)
     imageurl=base64.b64decode(imageurl)
     imageurl=(imageurl).decode('utf-8')
-    referal=referal.decode('utf-8')
+    referal=(referal).decode('utf-8')
     # print((imageurl).decode('utf-8')) 
     print(imageurl)
     print(referal)
